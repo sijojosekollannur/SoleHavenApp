@@ -1,0 +1,130 @@
+/* ADMIN LAYOUT PAGE */
+body {
+    background-color:#f8f9fa;
+    overflow-x: hidden;
+}
+.admin-navbar {
+    height: 100vh;
+    background-color: #343a40;
+    color: #fff;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 180px;
+    transform: translateX(-200px);
+    transition: transform 0.3s ease;
+    z-index: 1;
+}
+.admin-navbar.active {
+    transform: translateX(0);
+}
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display:none;
+    z-index: 0;
+}
+.overlay.active {
+    display: block;
+}
+@media (min-width: 768px) {
+    .admin-navbar {
+        transform: translateX(0);
+    }
+    .overlay {
+        display: none;
+    }
+    .navbar-toggler {
+        display:none;
+    }
+    .main-content {
+        margin-left: 250px;
+    }
+}
+
+
+  /* ADD CATEGORY PAGE */
+.addcategory {
+    height: auto;
+    width: 100%;
+    max-width: 500px;
+    background: #fff;
+}
+.form-label {
+    font-weight: bold;
+    color: #333;
+}
+.form-control {
+    border-radius: 0;
+}
+.btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+    border-radius: 0;
+}
+.btn-primary:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+}
+
+
+  /* ADD COUPONS PAGE */
+  .addcoupon-container{
+    padding-left: 250px;
+    padding-right: 100px;
+}
+
+  /* ADD OFFERS PAGE */
+
+
+  /* Admin Product Page */
+.vertical-line {
+    border-left: 1px solid #dee2e6;
+    height: 100%;
+}
+.table td, .table th {
+    padding: 1rem; 
+}
+.table-responsive {
+    margin-top: 2rem; 
+}
+.table img {
+    border-radius: 8px; 
+}
+.product-content{
+    margin-top: 20px;
+    padding-right: 60px;
+    padding-left: 250px;
+}
+
+
+/* Admin Add-Product Page */
+.cardADD{
+    margin-left: 150px;
+    margin-top: 30px;
+    margin-bottom: 80px;
+}
+
+
+/* Admin Edit-Product Page */
+.editproductdiv {
+    margin-left: 100px;
+    margin-right: 100px;
+}
+.edit-Head {
+    margin-left: 100px;
+}
+
+/* Admin Customers Page */
+.main-contentC{
+    margin-left:250px ;
+    padding-right: 50px;
+}
+.customerhead{
+    padding-bottom: 20px;
+}
+
