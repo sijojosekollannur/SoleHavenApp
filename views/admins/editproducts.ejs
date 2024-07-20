@@ -1,0 +1,153 @@
+<!-- edit-product.ejs -->
+<div class="container">
+    <h1 class="edit-Head">Edit Product</h1>
+    <div class="editproductdiv shadow-lg mt-5 mb-5 p-5">
+        <form id="editproductForm" action="/admin/update-product/<%= product._id %>" method="POST" enctype="multipart/form-data">
+            <!-- Other product details -->
+            <div class="form-group">
+                <label for="brandName">Brand Name:</label>
+                <input type="text" class="form-control" id="brandName" name="productBrand" value="<%= product.brandName %>">
+            </div>
+            <div class="form-group">
+                <label for="productName">Product Name:</label>
+                <input type="text" class="form-control" id="productName" name="productName" value="<%= product.productName %>">
+            </div>
+            <div class="form-group">
+                <label for="category">Category:</label>
+                <select class="form-control" id="category" name="productCategory">
+                    <% categories.forEach(category => { %>
+                        <option value="<%= category._id %>" <% if (product.productCategory && product.productCategory._id && product.productCategory._id.toString() === category._id.toString()) { %> selected <% } %>><%= category.categoryName %></option>
+                    <% }) %>
+                </select>
+            </div>                            
+            <div class="form-group">
+                <label for="color">Colors:</label>
+                <input type="text" class="form-control" id="color" name="productColor" value="<%= product.color %>">
+            </div>
+            <div class="form-group">
+                <label for="size">Size (Inch):</label>
+                <input type="text" class="form-control" id="size" name="productsizeInch" value="<%= product.sizeInch %>">
+            </div>
+            <div class="form-group">
+                <label for="price">Price:</label>
+                <input type="text" class="form-control" id="price" name="productPrice" value="<%= product.price %>">
+            </div>
+            <div class="form-group">
+                <label for="discountPrice">Discount Price:</label>
+                <input type="number" id="discountPrice" name="discountPrice" class="form-control" min="0" step="0.01" value="<%= product.discountPrice %>">
+            </div>
+            <div class="form-group">
+                <label for="stock">Stock:</label>
+                <input type="text" class="form-control" id="stock" name="productStock" value="<%= product.stock %>">
+            </div>
+            <div class="form-group">
+                <label for="starRating">Star Rating:</label>
+                <select id="starRating" name="starRating" class="form-control" required>
+                    <option value="" disabled>Select Your Rating</option>
+                    <% for (let i = 0.5; i <= 5; i += 0.5) { %>
+                        <option value="<%= i %>" <% if (product.starRating && product.starRating === i) { %> selected <% } %>><%= i %> Star</option>
+                    <% } %>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="isFeatured">Is Featured:</label>
+                <select id="isFeatured" name="isFeatured" class="form-control">
+                    <option value="false"  <%= product.isFeatured ? '' : 'selected' %>>No</option>
+                    <option value="true"  <%= product.isFeatured ? 'selected' : '' %>>Yes</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="isActive">Active:</label>
+                <select class="form-control" id="isActive" name="isActive">
+                    <option value="true" <%= product.isActive ? 'selected' : '' %>>Yes</option>
+                    <option value="false" <%= product.isActive ? '' : 'selected' %>>No</option>
+                </select>
+            </div>
+             <!-- Current images -->
+             <div class="form-group">
+                <label for="currentImages">Current Images:</label><br>
+                <div id="currentImagesContainer">
+                    <% product.productImages.forEach((image, index) => { %>
+                        <div class="current-image-item">
+                            <img src="<%= image %>" alt="Current Product Image" width="100">
+                            <button type="button" class="btn btn-sm btn-danger remove-image" data-index="<%= index %>">Remove</button>
+                        </div>
+                    <% }) %>
+                </div>
+            </div>
+            <!-- Upload new images -->
+            <div class="form-group">
+                <label for="productImages">Upload New Images (up to 9):</label>
+                <input type="file" class="form-control-file" id="productImages" name="productImages" multiple accept="image/*">
+            </div>
+            <div class="cropped-image-preview"></div>
+            <button type="submit" class="btn btn-primary">Update Product</button>
+        </form>
+    </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const productImagesInput = document.getElementById('productImages');
+    const currentImagesContainer = document.getElementById('currentImagesContainer');
+    const removedImagesInput = document.createElement('input');
+    removedImagesInput.type = 'hidden';
+    removedImagesInput.name = 'removedImages';
+    removedImagesInput.value = '[]';
+    document.getElementById('editproductForm').appendChild(removedImagesInput);
+
+    let removedImages = [];
+
+    currentImagesContainer.addEventListener('click', function(event) {
+        if (event.target.classList.contains('remove-image')) {
+            const index = event.target.dataset.index;
+            removedImages.push(index);
+            removedImagesInput.value = JSON.stringify(removedImages);
+            event.target.parentNode.remove();
+            validateImageCount();
+        }
+    });
+
+    productImagesInput.addEventListener('change', function () {
+        validateImageCount();
+    });
+
+    function validateImageCount() {
+        const files = productImagesInput.files;
+        const currentImagesCount = currentImagesContainer.querySelectorAll('img').length;
+        console.log("Current Images Count: ", currentImagesCount);
+        const removedImagesCount = removedImages.length;
+        const netCurrentImagesCount = currentImagesCount;
+        const totalImagesCount = netCurrentImagesCount + files.length;
+        console.log("Total Images Count: ", totalImagesCount);
+        const maxImagesCount = 9;
+        const minImagesCount = 3;
+
+        if (totalImagesCount > maxImagesCount) {
+            alert(`You can only upload up to ${maxImagesCount} images for the product. You have ${netCurrentImagesCount} current images and selected ${files.length} new images.`);
+            productImagesInput.value = '';
+        } else if (totalImagesCount < minImagesCount) {
+            alert(`You must have a minimum of ${minImagesCount} images for the product. You currently have ${netCurrentImagesCount} images and selected ${files.length} new images.`);
+            productImagesInput.value = '';
+        } else {
+            const remainingImagesCount = maxImagesCount - totalImagesCount;
+            handleImages(files);
+            alert(`You can add ${remainingImagesCount} more images.`);
+        }
+    }
+
+    function handleImages(files) {
+        const croppedImagesContainer = document.querySelector('.cropped-image-preview');
+        croppedImagesContainer.innerHTML = '';
+
+        Array.from(files).forEach(file => {
+            const imgElement = document.createElement('img');
+            imgElement.src = URL.createObjectURL(file);
+            imgElement.style.width = '100px';
+            imgElement.style.height = '100px';
+            imgElement.style.margin = '10px';
+            croppedImagesContainer.appendChild(imgElement);
+        });
+    }
+});
+</script>

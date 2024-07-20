@@ -1,0 +1,151 @@
+<div class="container mt-5 login-container">
+  <div class="row justify-content-center">
+      <div class="col-md-6 login-div">
+          <div class="card1 shadow-lg">
+              <div class="card-header bg-primary text-white">
+                  <h1 class="text-center">Login</h1>
+              </div>
+              <div class="card-body">
+                <% if (error) { %>
+                    <p class="error-message"><%= error %></p>
+                  <% } %>
+                  <% if (typeof error !== 'undefined') { %>
+                    <div class="alert alert-danger"><%= error %></div>
+                <% } %>
+                  <form id="loginForm" action="/users/login" method="POST">
+                      <div class="form-group">
+                          <label for="username">Username:</label>
+                          <input type="text" id="username" name="username" class="form-control">
+                      </div>
+                      <div class="form-group">
+                          <label for="password">Password:</label>
+                          <input type="password" id="password" name="password" class="form-control">
+                      </div>
+                      <div id="errorMessages" class="text-danger"></div>
+                      <div class="form-group text-center">
+                          <a href="/users/forgot">Forgot Password?</a>
+                      </div>
+                      <div class="form-group login-button-group">
+                          <button type="submit" class="btn btn-primary btn-half">Login</button>
+                      </div>
+                  </form>
+              </div>
+          </div>
+      </div>
+      <div class="oauthdiv col-md-6 mt-3 mt-md-0">
+          <div class="oauth-buttons">
+              <h2 class="oauth-heading">Please Sign In</h2>
+              <div class="text-center mb-3">
+                  <a href="/users/auth/google" class="g-btn btn btn-danger"><i class="fab fa-google"></i> Login with Google</a>
+              </div>
+              <div class="text-center">
+                  <a href="/users/auth/facebook" class="btn btn-primary"><i class="fab fa-facebook"></i> Login with Facebook</a>
+              </div>
+              <div class="caption">
+                  <h6>Step into Comfort, Style, and Quality!!</h6>
+              </div>
+              <div class="three-d-caption">
+                  <h4 class="attractive-caption">Your Perfect Fit, Every Step of the Way!</h4>
+              </div>
+              <a href="/users/main" class="text-dark text-decoration-none">
+                  <h1><i class="fas fa-shoe-prints py-5"></i>Sole Haven</h1>
+              </a>
+              <h2>Please Sign Up</h2>
+              <a href="/users/signup" class="btn btn-secondary bg-success">Sign Up</a>
+          </div>
+      </div>
+  </div>
+</div>
+
+<!-- Facebook SDK -->
+<script>
+  window.fbAsyncInit = function() {
+      FB.init({
+          appId      : '<%= process.env.FACEBOOK_APP_ID %>',
+          cookie     : true,
+          xfbml      : true,
+          version    : 'v14.0'
+      });
+
+      FB.AppEvents.logPageView();   
+  };
+
+  (function(d, s, id){
+     var js, fjs = d.getElementsByTagName(s)[0];
+     if (d.getElementById(id)) {return;}
+     js = d.createElement(s); js.id = id;
+     js.src = "https://connect.facebook.net/en_US/sdk.js";
+     fjs.parentNode.insertBefore(js, fjs);
+  }(document, 'script', 'facebook-jssdk'));
+
+  function fbLogin() {
+      FB.login(function(response) {
+          if (response.authResponse) {
+              FB.api('/me', function(response) {
+                  console.log('Successful login for: ' + response.name);
+                  document.getElementById('status').innerHTML = 'Thanks for logging in, ' + response.name + '!';
+                  // Perform redirection or other actions here
+              });
+          } else {
+              console.log('User cancelled login or did not fully authorize.');
+          }
+      }, {scope: 'public_profile,email'});
+  }
+</script>
+
+<!-- JavaScript Validation -->
+<script>
+  document.getElementById('loginForm').addEventListener('submit', function(event) {
+      event.preventDefault(); // Prevent the form from submitting the traditional way
+      let errorMessages = [];
+      let username = document.getElementById('username').value;
+      let password = document.getElementById('password').value;
+
+      const spacePattern = /^\s|\s{2,}|\s$/;
+
+    if (username === '' &&  password === '') {
+          errorMessages.push('Please enter your username or password.');
+    } else {
+      if (username === '') {
+          errorMessages.push('Username is required.');
+      } else if (spacePattern.test(username)) {
+          errorMessages.push('Username contains invalid spaces.');
+      }
+      if (password === '') {
+          errorMessages.push('Password is required.');
+      } else if (password.length < 8) {
+          errorMessages.push('Password must be at least 8 characters long.');
+      } else if (spacePattern.test(password)) {
+          errorMessages.push('Password contains invalid spaces.');
+      }
+    }
+
+      if (errorMessages.length > 0) {
+          document.getElementById('errorMessages').innerHTML = errorMessages.join('<br>');
+      } else {
+         // Clear the error messages before performing the AJAX request
+         document.getElementById('errorMessages').innerHTML = '';
+
+          // Perform the AJAX request to submit the form data
+          $.ajax({
+              url: '/users/login',
+              type: 'POST',
+              data: {
+                  username: username,
+                  password: password,
+              },
+              success: function(response) {
+                  if (response.redirect) {
+                      window.location.href = response.redirect;
+                  }
+                  // Clear the form fields
+                  document.getElementById('loginForm').reset();
+              },
+              error: function(xhr) {
+                  let response = JSON.parse(xhr.responseText);
+                  document.getElementById('errorMessages').innerHTML = response.error;
+              }
+          });
+      }
+  });
+</script>

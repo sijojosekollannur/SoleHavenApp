@@ -1,0 +1,66 @@
+<div class="wishlist-container shadow-lg">
+    <h1 class="wishlist-head">Your Wishlist</h1>
+    <p class="wishlist-page-para"> <span>Click Your Favourite Items Image,</span> Add Them To Your Cart When You're Ready To Purchase!</p>
+    <table class="wishlist-table">
+        <thead>
+            <tr>
+                <th id="pimage">Image</th>
+                <th id="brand">Brand Name</th>
+                <th id="pname">Product Name</th>
+                <th id="price">Price</th>
+                <th id="remove">Remove</th>
+            </tr>
+        </thead>
+        <tbody class="wishlist-items">
+            <% if (wishlistItems && wishlistItems.length > 0) { %>
+                <% wishlistItems.forEach(item => { %>
+                    <% if (item.product) { %>
+                        <tr class="wishlist-item">
+                            <td class="p-image">
+                                <a href="/users/product-details/<%= item.product._id %>"> <!-- Add the product details page URL here -->
+                                    <img src="<%= item.product.productImages && item.product.productImages.length > 0 ? item.product.productImages[0] : '' %>" alt="<%= item.product.productName || '' %>">
+                                </a>
+                            </td>
+                            <td class="brand-name"><%= item.product.brandName || '' %></td>
+                            <td class="product-name"><span><%= item.product.productName || '' %></span></td>
+                            <td class="product-price"><%= item.product.price.toFixed(2) %></td>
+                            <td>
+                                <button class="remove-button" data-product-id="<%= item.product._id %>">Remove</button>
+                            </td>
+                            <input type="hidden" id="userId" value="<%= user ? user._id : '' %>">
+                        </tr>
+                    <% } %>
+                <% }); %>
+            <% } else { %>
+                <tr>
+                    <td colspan="5" class="empty-wishlist-message">Your wishlist is empty.</td>
+                </tr>
+            <% } %>
+        </tbody>
+    </table>
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+    $(document).ready(function() {
+    $('.remove-button').on('click', function() {
+        var userId = $('#userId').val();
+        var productId = $(this).data('product-id');
+       
+        $.ajax({
+            url: '/users/del-wishlistitem/' + productId,
+            method: 'DELETE',
+            contentType: 'application/json',
+            data: JSON.stringify({ userId: userId }), // This is not needed as userId is handled in the session
+            success: function(response) {
+                location.reload(); // Reload the page to update the wishlist
+            },
+            error: function(xhr, status, error) {
+                console.error('Error removing product from wishlist:', error);
+                alert('Error removing product from wishlist');
+            }
+        });
+    });
+});
+
+
+</script>

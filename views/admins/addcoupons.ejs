@@ -1,0 +1,97 @@
+<div class="addcoupon-container mt-5">
+    <h1>Add Coupon</h1>
+    <form id="addCouponForm" action="/admin/add-coupons" method="POST">
+        <div class="form-group">
+            <label for="code">Coupon Code</label>
+            <input type="text" class="form-control" id="code" name="code" >
+            <div id="codeError" class="invalid-feedback">Coupon Code is required.</div>
+        </div>
+        <div class="form-group">
+            <label for="discountPercentage">Discount Percentage</label>
+            <input type="number" class="form-control" id="discountPercentage" name="discountPercentage" min="0" max="100" >
+            <div id="discountPercentageError" class="invalid-feedback">Discount Percentage must be between 0 and 100.</div>
+        </div>
+        <div class="form-group">
+            <label for="validFrom">Valid From</label>
+            <input type="date" class="form-control" id="validFrom" name="validFrom">
+            <div id="validFromError" class="invalid-feedback">Valid From date is required.</div>
+        </div>
+        <div class="form-group">
+            <label for="validUntil">Valid Until</label>
+            <input type="date" class="form-control" id="validUntil" name="validUntil" >
+            <div id="validUntilError" class="invalid-feedback">Valid Until date is required.</div>
+        </div>
+        <div class="form-group">
+            <label for="usageLimit">Usage Limit</label>
+            <input type="number" class="form-control" id="usageLimit" name="usageLimit" min="1">
+            <div id="usageLimitError" class="invalid-feedback">Usage Limit must be at least 1.</div>
+        </div>
+        <button type="submit" class="btn btn-primary">Add Coupon</button>
+    </form>
+</div>
+
+<script>
+    document.getElementById('addCouponForm').addEventListener('submit', function(event) {
+      const code = document.getElementById('code').value.trim();
+      const discountPercentage = document.getElementById('discountPercentage').value;
+      const validFrom = document.getElementById('validFrom').value;
+      const validUntil = document.getElementById('validUntil').value;
+      const usageLimit = document.getElementById('usageLimit').value;
+  
+      let isValid = true;
+  
+      // Validate Coupon Code
+      if (code === '') {
+        isValid = false;
+        document.getElementById('code').classList.add('is-invalid');
+        document.getElementById('codeError').textContent = 'Coupon Code is required.';
+      } else {
+        document.getElementById('code').classList.remove('is-invalid');
+        document.getElementById('codeError').textContent = '';
+      }
+  
+      // Validate Discount Percentage
+      if (discountPercentage === '' || discountPercentage < 0 || discountPercentage > 100) {
+        isValid = false;
+        document.getElementById('discountPercentage').classList.add('is-invalid');
+        document.getElementById('discountPercentageError').textContent = 'Discount Percentage must be between 0 and 100.';
+      } else {
+        document.getElementById('discountPercentage').classList.remove('is-invalid');
+        document.getElementById('discountPercentageError').textContent = '';
+      }
+  
+      // Validate Valid From date
+      if (validFrom === '') {
+        isValid = false;
+        document.getElementById('validFrom').classList.add('is-invalid');
+        document.getElementById('validFromError').textContent = 'Valid From date is required.';
+      } else {
+        document.getElementById('validFrom').classList.remove('is-invalid');
+        document.getElementById('validFromError').textContent = '';
+      }
+  
+      // Validate Valid Until date
+      if (validUntil === '') {
+        isValid = false;
+        document.getElementById('validUntil').classList.add('is-invalid');
+        document.getElementById('validUntilError').textContent = 'Valid Until date is required.';
+      } else {
+        document.getElementById('validUntil').classList.remove('is-invalid');
+        document.getElementById('validUntilError').textContent = '';
+      }
+  
+      // Validate Usage Limit
+      if (usageLimit === '' || usageLimit < 1) {
+        isValid = false;
+        document.getElementById('usageLimit').classList.add('is-invalid');
+        document.getElementById('usageLimitError').textContent = 'Usage Limit must be at least 1.';
+      } else {
+        document.getElementById('usageLimit').classList.remove('is-invalid');
+        document.getElementById('usageLimitError').textContent = '';
+      }
+  
+      if (!isValid) {
+        event.preventDefault(); // Prevent form submission if validation fails
+      }
+    });
+  </script>

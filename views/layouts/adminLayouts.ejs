@@ -1,0 +1,79 @@
+<!-- adminLayout.ejs -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/styleSheets/adminStyles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
+</head>
+<body>
+    <% if (showSidebar == true) { %>
+    <aside>
+        <!-- Admin Navbar -->
+        <div class="admin-navbar bg-dark d-flex flex-column p-3" id="adminNavbar">
+            <a class="navbar-brand text-white" href="#">Admin</a>
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="/admin/dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="/admin/products"><i class="fas fa-box"></i> Products</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="/admin/categories"><i class="fas fa-list"></i> Categories</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="/admin/orders"><i class="fas fa-shopping-cart"></i> Orders</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="/admin/coupons"><i class="fas fa-tag"></i> Coupons</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="/admin/customers"><i class="fas fa-users"></i> Customers</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="/admin/banners"><i class="fas fa-images"></i> Banners</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="/admin/offers"><i class="fas fa-gift"></i> Offers</a>
+                </li>
+            </ul>
+            <a class="btn btn-danger mt-auto" href="/admin/logout">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </div>
+        <div class="overlay" id="overlay"></div>
+        <!-- Admin Content -->
+        <div class="container-fluid main-content">
+            <div class="row">
+                <div class="col-12">
+                    <button class="navbar-toggler btn btn-dark " type="button" id="menuToggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </aside>
+    <% } %>
+
+    <main>
+        
+        <%- body %>
+    
+    </main>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+    <script src="/javascripts/adminScripts.js"></script>
+</body>
+</html>

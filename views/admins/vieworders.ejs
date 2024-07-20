@@ -1,0 +1,76 @@
+<style>
+    .container{
+        margin-left: 200px;
+        padding-right: 30px;
+        margin-bottom: 50px;
+    }
+</style>
+
+<div class="container mt-5">
+    <h1>Order Details</h1>
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Order #<%= order._id %></h5>
+            <p><strong>Order Date:</strong> <%= order.orderDate.toLocaleDateString() %></p>
+            <p><strong>Order Status:</strong> <%= order.orderStatus %></p>
+            <p><strong>Payment Method:</strong> <%= order.paymentMethod %></p>
+            <p><strong>Payment Status:</strong> <%= order.status %></p>
+
+            <h3>Customer Information</h3>
+            <p><strong>Name:</strong> <%= order.user.name %></p>
+            <p><strong>Email:</strong> <%= order.user.email %></p>
+
+            <h3>Shipping Address</h3>
+            <% if (order.address) { %>
+                <p><strong>Full Name:</strong> <%= order.address.fullName %></p>
+                <p><strong>House Name:</strong> <%= order.address.addressLine1 %></p>
+                <p><strong>Place:</strong> <%= order.address.addressLine2 %></p>
+                <p><strong>City:</strong> <%= order.address.city %></p>
+                <p><strong>State:</strong> <%= order.address.state %></p>
+                <p><strong>Zip Code:</strong> <%= order.address.zipCode %></p>
+                <p><strong>Country:</strong> <%= order.address.country %></p>
+                <p><strong>Mobile Number:</strong> <%= order.address.mobileNumber %></p>
+            <% } else { %>
+                <p>No address information available</p>
+            <% } %>
+
+            <h3>Order Items</h3>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Brand</th>
+                        <th>Color</th>
+                        <th>Size</th>
+                        <th>Quantity</th>
+                        <th>Price</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% order.products.forEach(item => { %>
+                        <tr>
+                            <td><%= item.productName %></td>
+                            <td><%= item.brandName %></td>
+                            <td><%= item.color %></td>
+                            <td><%= item.size %></td>
+                            <td><%= item.quantity %></td>
+                            <td>₹<%= item.price.toFixed(2) %></td>
+                            <td>₹<%= (item.quantity * item.price).toFixed(2) %></td>
+                        </tr>
+                    <% }); %>
+                </tbody>
+            </table>
+
+            <div class="text-right">
+                <p><strong>Subtotal:</strong> ₹<%= order.subtotal.toFixed(2) %></p>
+                <p><strong>Tax:</strong> ₹<%= order.tax.toFixed(2) %></p>
+                <% if (order.appliedCouponAmount > 0) { %>
+                    <p><strong>Coupon Discount:</strong> ₹<%= order.appliedCouponAmount.toFixed(2) %></p>
+                <% } %>
+                <h5><strong>Total Amount:</strong> ₹<%= order.totalAmount.toFixed(2) %></h5>
+            </div>
+        </div>
+    </div>
+    <a href="/admin/orders" class="btn btn-primary mt-3">Back to Orders</a>
+</div>

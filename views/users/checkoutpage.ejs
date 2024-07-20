@@ -1,0 +1,601 @@
+<style>
+    .checkout-container {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        width: 90%;
+        max-width: 1600px;
+        margin: 0 auto;
+        margin-top: 150px;
+        margin-bottom: 100px;
+    }
+    .products, .addresses, .payment-methods {
+        margin-bottom: 20px;
+    }
+    .product, .address, .payment-method {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 10px;
+        margin-bottom: 10px;
+    }
+    .image{
+    width:100px;
+    }
+    .image img{
+    width:100%;
+    display: flexbox;
+    }
+    .product-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+    }
+    .product-table th, .product-table td {
+        border: 1px solid #ddd;
+        padding: 10px;
+        text-align: left;
+    }
+    .product-table th {
+        background-color: #f2f2f2;
+    }
+    .order-actions {
+        text-align: right;
+        margin-top: 20px;
+    }
+    button {
+        background-color: #4CAF50;
+        border: none;
+        color: white;
+        padding: 10px 20px;
+        text-align: center;
+        text-decoration: none;
+        font-size: 16px;
+        margin-right: 10px;
+        cursor: pointer;
+        border-radius: 4px;
+        transition: background-color 0.3s;
+    }
+    button:hover {
+        background-color: #45a049;
+    }
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0,0,0,0.4);
+    }
+    .modal-content {
+        background-color: #fefefe;
+        margin: 15% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+        max-width: 600px;
+        border-radius: 8px;
+    }
+    .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+    }
+    .close:hover,
+    .close:focus {
+        color: black;
+        text-decoration: none;
+        cursor: pointer;
+    }
+    .flex-container {
+        display: flex;
+        justify-content: space-between;
+        /* Ensure items are spaced evenly */
+    }
+
+    .address-container,
+    .payment-container {
+        width: 48%; /* Adjusted width for both containers */
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+    }
+
+    .product-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+    .product-table th,
+    .product-table td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: center; /* Adjusted alignment for better readability */
+    }
+
+    .product-table th {
+        background-color: #f2f2f2;
+        font-weight: bold;
+    }
+
+    .image img {
+        width: 80px; /* Adjusted image size */
+        display: block; /* Corrected image display */
+        margin: 0 auto; /* Centered image within its container */
+    }
+
+    /* Positioning the containers */
+    .flex-container {
+        display: flex;
+        justify-content: space-between; /* Ensure items are spaced evenly */
+    }
+
+    .address-container,
+    .payment-container {
+        width: 50%; /* Adjusted width for both containers */
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+    }
+
+    /* Adjusted width and float for positioning */
+    .payment-container {
+        width: 50%; /* Adjusted width for payment container */
+        float: left; /* Float left to position on the left */
+    }
+
+    .address-container {
+        width: 48%; /* Adjusted width for address container */
+        float: right; /* Float right to position on the right */
+    }.coupon-container{
+        display: flex;
+        padding-left: 600px;
+        justify-content: space-between;
+    }
+</style>
+
+<div class="checkout-container">
+    <h1>Checkout</h1>
+
+    <form action="/users/placeorder" method="POST">
+        <input type="hidden" id="checkoutId" value="<%= checkout._id %>">
+
+        <h2>Selected Products</h2>
+        <div class="products">
+            <table class="product-table">
+                <thead>
+                    <tr>
+                        <th>Image</th>
+                        <th>Product Name</th>
+                        <th>Brand</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th>Color</th>
+                        <th>Size</th>
+                        <th id="remove">Remove</th>
+                    </tr>
+                </thead>
+                <tbody id="cartItems">
+                    <% checkout.cartItems.forEach((item, index) => { %>
+                        <tr data-price="<%= item ? item.price : 0 %>" data-quantity="<%= item ? item.quantity : 0 %>">
+                            <td class="image">
+                                <a href="#">
+                                    <img src="<%= item && item.productImages && item.productImages.length > 0 ? item.productImages[0] : '' %>" alt="<%= item && item.productName ? item.productName : '' %>">
+                                </a>
+                            </td>
+                            <td class="product-details">
+                                <% if (item) { %>
+                                    <h6><%= item.productName %></h6>
+                                <% } else { %>
+                                    <h6>Product Not Found</h6>
+                                <% } %>
+                            </td>
+                            <td><%= item ? item.brandName : 'N/A' %></td>
+                            <td>₹<%= item ? item.price.toFixed(2) : '0.00' %></td>
+                            <td><%= item ? item.quantity : 'N/A' %></td>
+                            <td><%= item ? item.selectedColor : 'N/A' %></td>
+                            <td><%= item ? item.selectedSize : 'N/A' %></td>
+                            <td>
+                                <button  type="button" class="remove-product-btn" onclick="removeProduct(this)">Remove</button>
+                            </td>
+
+                            <!-- Hidden Inputs to Send Product Details -->
+                            <input type="hidden" name="products[<%= index %>][productId]" value="<%= item ? item.productId : '' %>">
+                            <input type="hidden" name="products[<%= index %>][productImages]" value="<%= item ? item.productImages.join(',') : '' %>">
+                            <input type="hidden" name="products[<%= index %>][productName]" value="<%= item ? item.productName : '' %>">
+                            <input type="hidden" name="products[<%= index %>][brandName]" value="<%= item ? item.brandName : '' %>">
+                            <input type="hidden" name="products[<%= index %>][color]" value="<%= item ? item.selectedColor : '' %>">
+                            <input type="hidden" name="products[<%= index %>][size]" value="<%= item ? item.selectedSize : '' %>">
+                            <input type="hidden" name="products[<%= index %>][quantity]" value="<%= item ? item.quantity : '' %>">
+                            <input type="hidden" name="products[<%= index %>][price]" value="<%= item ? item.price : '' %>">
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+            <div class="coupon-container">
+                <label for="availableCoupons">Select a Coupon:</label>
+                <select id="couponCode">
+                    <option value="">Select a coupon</option>
+                    <% availableCoupons.forEach(coupon => { %>
+                        <option value="<%= coupon.code %>"><%= coupon.code %></option>
+                    <% }) %>
+                </select>
+                <button id="applyCouponBtn" type="button" onclick="applyCoupon()">Apply Coupon</button>
+                <button id="removeCouponBtn" type="button" onclick="removeCoupon()">Remove Coupon</button>
+            </div>            
+            <h3 id="subtotal">Subtotal: ₹<%= checkout.subtotal.toFixed(2) %></h3>
+            <h3 id="tax">Tax: ₹<%= checkout.tax.toFixed(2) %></h3>
+            <% if (checkout.coupon) { %>
+                <h3 id="appliedCouponAmount" class="applied-coupon-amount">Coupon Applied: -₹<%= appliedCouponAmount ? appliedCouponAmount.toFixed(2) : 0 %></h3>
+                <input type="hidden" id="hiddenCouponAmount" class="applied-coupon-amount" value="<%= appliedCouponAmount %>">
+            <% } else { %>
+                <h3 id="appliedCouponAmount" class="applied-coupon-amount" style="display:none;">Coupon Applied: -₹0</h3>
+                <input type="hidden" id="hiddenCouponAmount" class="applied-coupon-amount" value="0">
+            <% } %>            
+            <h2 id="totalAmount" class="total-amount">Total Amount: ₹<%= checkout.total.toFixed(2) %></h2>
+        </div>
+      </form>
+  
+        
+       
+        <div class="flex-container">
+            <div class="payment-container">
+                <h2>Payment Methods</h2>
+                <div class="payment-methods">    
+                    <div class="payment-method">
+                        <input type="radio" name="paymentMethod" value="PayPal" checked> PayPal
+                    </div>
+                    <div class="payment-method">
+                        <input type="radio" name="paymentMethod" value="Cash On Delivery"> Cash On Delivery
+                    </div>
+                    <div class="payment-method">
+                        <input type="radio" name="paymentMethod" value="Wallet"> Wallet
+                    </div>
+                </div>
+                
+                <div class="order-actions">
+                    <button type="button" id="placeOrderBtn">Place Order</button>
+                    <button type="button" onclick="cancelOrder()">Cancel</button>
+                </div>
+            </div>
+
+            <div class="address-container">
+                <h2>Shipping Address</h2>
+                <div class="addresses">
+                    <% if (address && address.length > 0) { %>
+                        <% address.forEach(addr => { %>
+                            <div class="address">
+                                <input type="radio" name="selectedAddress" value="<%= addr._id %>" <%= address.indexOf(addr) === 0 ? 'checked' : '' %>>
+                                <p><%= addr.fullName %></p>
+                                <p><%= addr.addressLine1 %>, <%= addr.addressLine2 %></p>
+                                <p><%= addr.city %>, <%= addr.state %> - <%= addr.zipCode %></p>
+                                <p><%= addr.country %></p>
+                                <p><%= addr.mobileNumber %></p>
+                                <a href="/users/<%= user._id %>/addresses/<%= addr._id %>/anotherEditRoute" class="btn btn-warning">Edit</a>
+                            </div>
+                        <% }) %>
+                    <% } else { %>
+                        <p>No address found for this user.</p>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<script>
+    // PAYMENT FUNCTION
+    $(document).ready(function() {
+        function handleSubmit() {
+            document.getElementById('placeOrderBtn').disabled = true;
+            const paymentMethod = $('input[name="paymentMethod"]:checked').val();
+            const checkoutId = $('#checkoutId').val();
+            const selectedAddress = $('input[name="selectedAddress"]:checked').val();
+            const appliedCouponAmount = parseFloat($('#hiddenCouponAmount').val()) || 0;
+            const totalAmount = parseFloat($('.total-amount').text().replace('Total Amount: ₹', ''));
+
+            // Check if total amount is above Rs 1000 and COD is selected
+            if (paymentMethod === 'Cash On Delivery' && totalAmount > 1000) {
+                alert('Cash On Delivery is not available for orders above Rs 1000.');
+                document.getElementById('placeOrderBtn').disabled = false;
+                return;
+            }
+
+            const requestData = {
+                checkoutId: checkoutId,
+                selectedAddress: selectedAddress,
+                appliedCouponAmount: appliedCouponAmount
+            };
+
+            if (paymentMethod === 'PayPal') {
+                requestData.paymentMethod = 'PayPal';
+                // PayPal payment logic
+                $.ajax({
+                    url: '/paypal/pay',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(requestData),
+                    success: function(response) {
+                        if (response.approvalUrl) {
+                            window.location.href = response.approvalUrl;
+                        } else {
+                            alert('Failed to initiate PayPal payment');
+                            document.getElementById('placeOrderBtn').disabled = false;
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error initiating payment:', error);
+                        alert('Failed to initiate payment. Please try again.');
+                        document.getElementById('placeOrderBtn').disabled = false;
+                    }
+                });
+            } else if (paymentMethod === 'Cash On Delivery') {
+                requestData.paymentMethod = 'Cash On Delivery';
+                // Cash on delivery logic
+                $.ajax({
+                    url: '/users/placeorder',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(requestData),
+                    success: function(response) {
+                        if (response.success && response.orderId) {
+                            // Redirect on success
+                            window.location.href = '/users/placeorder/' + response.orderId;
+                        } else {
+                            alert('Failed to place order: ' + (response.message || 'Unknown error'));
+                            document.getElementById('placeOrderBtn').disabled = false;
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error placing order:', error);
+                        alert('Failed to place order. Please try again.');
+                        document.getElementById('placeOrderBtn').disabled = false;
+                    }
+                });
+            } else if (paymentMethod === 'Wallet') {
+                requestData.paymentMethod = 'Wallet';
+                // Wallet payment logic
+                $.ajax({
+                    url: '/users/wallet/pay',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        checkoutId: requestData.checkoutId,
+                        selectedAddress: requestData.selectedAddress
+                    }),
+                    success: function(response) {
+                        if (response.success) {
+                            window.location.href = `/users/placeorder/${response.orderId}`;
+                        } else {
+                            alert('Failed to complete wallet payment');
+                            document.getElementById('placeOrderBtn').disabled = false;
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error initiating wallet payment:', error);
+                        const response = JSON.parse(xhr.responseText);
+                        if (response.error === 'Insufficient wallet balance') {
+                            alert('You do not have enough money in your wallet to pay for this order.');
+                        } else {
+                            alert('Failed to initiate payment. Please try again.');
+                        }
+                        document.getElementById('placeOrderBtn').disabled = false;
+                    }
+                });
+            } else {
+                alert('Please select a valid payment method');
+                document.getElementById('placeOrderBtn').disabled = false;
+            }
+        }
+
+        function removeProduct(button) {
+    const row = $(button).closest('tr');
+    const price = parseFloat(row.data('price'));
+    const quantity = parseInt(row.data('quantity'));
+
+    // Remove the product from the UI
+    row.remove();
+
+    // Update subtotal, tax, and total amounts
+    updateAmounts(price, quantity);
+
+    const updatedProducts = [];
+$('#cartItems tr').each(function() {
+    const productId = $(this).find('input[name$="[productId]"]').val();
+    const productImages = $(this).find('input[name$="[productImages]"]').val().split(',');
+    const productName = $(this).find('input[name$="[productName]"]').val();
+    const brandName = $(this).find('input[name$="[brandName]"]').val();
+    const selectedColor = $(this).find('input[name$="[color]"]').val();
+    const selectedSize = $(this).find('input[name$="[size]"]').val();
+    const quantity = parseInt($(this).find('input[name$="[quantity]"]').val(), 10);
+    const price = parseFloat($(this).find('input[name$="[price]"]').val());
+
+    const product = {
+        productId,
+        productImages,
+        productName,
+        brandName,
+        selectedColor,
+        selectedSize,
+        quantity,
+        price
+    };
+
+    updatedProducts.push(product);
+  });
+
+    console.log('Updated Products:', updatedProducts);
+
+
+    const checkoutId = $('#checkoutId').val();
+    $.ajax({
+        url: '/users/update-checkout',
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({ checkoutId, updatedProducts, appliedCouponAmount: parseFloat($('#hiddenCouponAmount').val()) }),
+        success: function(data) {
+            console.log(data.message);
+        },
+        error: function(error) {
+            console.error('Error updating checkout:', error);
+            alert('Failed to update checkout. Please try again.');
+        }
+    });
+}
+
+// Function to update amounts after removing a product
+function updateAmounts(price, quantity) {
+    const subtotalElement = $('#subtotal');
+    const taxElement = $('#tax');
+
+    let subtotal = parseFloat(subtotalElement.text().replace('Subtotal: ₹', ''));
+    
+    // Calculate amount to remove
+    const amountToRemove = price * quantity;
+    subtotal -= amountToRemove;
+
+    // Recalculate tax based on the new subtotal
+    let tax = subtotal * 0.10; // Assuming tax is 10% of subtotal
+
+    // Update UI with new values
+    subtotalElement.text(`Subtotal: ₹${subtotal.toFixed(2)}`);
+    taxElement.text(`Tax: ₹${tax.toFixed(2)}`);
+
+    // Update total amount
+    updateTotal();
+}
+
+// Function to update total amount
+function updateTotal() {
+    const subtotal = parseFloat($('#subtotal').text().replace('Subtotal: ₹', ''));
+    const tax = subtotal * 0.10; // Assuming tax is 10% of subtotal
+    const appliedCouponAmount = parseFloat($('#hiddenCouponAmount').val()) || 0;
+    let total = subtotal + tax - appliedCouponAmount;
+
+    // Update UI with new total amount
+    $('#totalAmount').text(`Total Amount: ₹${total.toFixed(2)}`);
+    $('.total-amount').text(`Total Amount: ₹${total.toFixed(2)}`);
+}
+
+// Event listener for the "Place Order" button
+$('#placeOrderBtn').on('click', function(e) {
+    e.preventDefault();
+    handleSubmit(); // Call the handleSubmit function
+});
+
+// Initial calculation of total amount on page load
+updateTotal();
+
+// Event listener for removing a product
+$('.remove-product-btn').on('click', function(e) {
+    e.preventDefault();
+    removeProduct(this);
+});
+
+// Event listener for applying a coupon
+$('#applyCouponBtn').on('click', function(e) {
+    e.preventDefault();
+    applyCoupon();
+});
+
+// Event listener for removing a coupon
+$('#removeCouponBtn').on('click', function(e) {
+    e.preventDefault();
+    removeCoupon();
+});
+
+
+        // Function to apply a coupon
+        function applyCoupon() {
+            const checkoutId = $('#checkoutId').val();
+            const couponCode = $('#couponCode').val();
+
+            $.ajax({
+                url: '/users/apply-coupon',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ checkoutId, couponCode }),
+                success: function(data) {
+                    if (data.message === 'Coupon applied successfully') {
+                        alert(data.message);
+                        $('#hiddenCouponAmount').val(data.appliedCouponAmount.toFixed(2)); // Update hidden coupon amount
+                        $('.applied-coupon-amount').text(`Coupon Applied: -₹${data.appliedCouponAmount.toFixed(2)}`).show(); // Show applied coupon amount
+                        updateTotal(); // Update total amount
+                    } else {
+                        alert(data.message);
+                    }
+                },
+                error: function(error) {
+                    console.error('Error:', error);
+                    alert('Failed to apply coupon. Error: ' + (error.responseJSON.message || 'Unknown error'));
+                }
+            });
+        }
+
+        // Function to remove a coupon
+        function removeCoupon() {
+            const checkoutId = $('#checkoutId').val();
+
+            $.ajax({
+                url: '/users/remove-coupon',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ checkoutId }),
+                success: function(data) {
+                    if (data.message === 'Coupon removed successfully') {
+                        alert(data.message);
+                        $('#hiddenCouponAmount').val('0'); // Reset hidden coupon amount
+                        $('.applied-coupon-amount').hide(); // Hide applied coupon amount
+                        updateTotal(); // Update total amount
+                    } else {
+                        alert(data.message);
+                    }
+                },
+                error: function(error) {
+                    console.error('Error:', error);
+                    alert('Failed to remove coupon. Error: ' + (error.responseJSON.message || 'Unknown error'));
+                }
+            });
+        }
+    });
+</script>
+
+
+<script>
+
+    // CANCEL ORDER FUNCTION
+    function cancelOrder() {
+        const checkoutId = document.getElementById('checkoutId').value;
+
+        fetch(`/users/cancel-checkout/${checkoutId}`, {
+            method: 'DELETE'
+        })
+        .then(response => {
+            if (response.ok) {
+                window.location.href = '/users/cart';
+            } else {
+                response.json().then(error => {
+                    console.error('Failed to cancel the order:', error);
+                    alert('Failed to cancel the order. Error: ' + (error.message || 'Unknown error'));
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Failed to cancel the order. Error: ' + error.message);
+        });
+    }
+
+</script>
+

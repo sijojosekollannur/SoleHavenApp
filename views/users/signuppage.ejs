@@ -1,0 +1,167 @@
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="cardS shadow-lg">
+                <div class="card-header bg-primary text-white">
+                    <h1 class="text-center">Sign Up</h1>
+                </div>
+                <div class="card-body">
+                    <form id="signupForm" action="/users/signup" method="POST">
+                        <div class="form-group">
+                            <label for="username">Username:</label>
+                            <input type="text" id="username" name="username" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email:</label>
+                            <div class="input-group">
+                                <input type="email" id="email" name="email" class="form-control">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Password:</label>
+                            <input type="password" id="password" name="password" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="verify">Verify Password:</label>
+                            <input type="password" id="verify" name="verify" class="form-control">
+                            <small id="verifyHelp" class="form-text text-danger d-none">Passwords do not match.</small>
+                        </div>
+                        <div>
+                            <label for="referralCode">Referral Code (optional):</label>
+                            <input type="text" id="referralCode" name="referralCodeUser">
+                          </div>
+                        <div id="errorMessages" class="text-danger"></div>
+                        <button type="submit" class="btn btn-primary btn-block">Sign Up</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mt-3 mt-md-0">
+            <div class="oauth-buttons">
+                 <h2 class="oauth-heading py-3 text-danger text-center">Join Our Community</h2>
+                 <h6 class="caption py-2 text-center">Sign up now to get exclusive offers!</h6>
+                 <h6 class="caption py-2 text-center">Connect with friends and enjoy your favorite comfort!</h6>
+                 <h6 class="caption py-2 text-center">Step into Comfort, Step into Style: Your Sole Haven Awaits!</h6>
+                 <h1 class="text-center"><i class="fas fa-shoe-prints py-5"></i>Sole Haven</h1>
+                 <div>
+                     <h3 class="caption-3d py-5 text-success text-center">Footwear Revolution at Sole Haven !!</h3>
+                 </div>
+             </div>
+         </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+    $('#signupForm').submit(function(e) {
+        e.preventDefault();
+        
+        var formData = $(this).serializeArray();
+        var data = {};
+        $(formData).each(function(index, obj){
+            data[obj.name] = obj.value;
+        });
+        
+        // Perform client-side validation
+        if (data.password !== data.verify) {
+            $('#errorMessages').text('Passwords do not match.');
+            return;
+        }
+        
+        $.ajax({
+            url: '/users/signup',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(data),
+            success: function(result) {
+                if (result.error) {
+                    $('#errorMessages').text(result.error);
+                } else if (result.redirect) {
+                    window.location.href = result.redirect;
+                }
+            },
+            error: function(xhr, status, error) {
+                let response = JSON.parse(xhr.responseText);
+                document.getElementById('errorMessages').innerHTML = response.error;
+            }
+        });
+    });
+});
+</script>
+
+<script>
+document.getElementById('signupForm').addEventListener('submit', function(event) {
+    event.preventDefault(); // Prevent the form from submitting the traditional way
+    let errorMessages = [];
+    let username = document.getElementById('username').value;
+    let email = document.getElementById('email').value.trim();
+    let password = document.getElementById('password').value;
+    let verifyPassword = document.getElementById('verify').value;
+    // Updated pattern to disallow invalid spaces
+    const spacePattern = /^\s|\s{2,}|\s$/;
+    
+    // Validate username
+    if (username.trim() === '') {
+        errorMessages.push('Username is required and cannot be just spaces.');
+    } else if (spacePattern.test(username)) {
+        errorMessages.push('Username Required.');
+    }
+    
+    // Validate email
+    if (email === '') {
+        errorMessages.push('Email is required.');
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+        errorMessages.push('Email is invalid.');
+    }
+    
+    // Validate password
+    if (password.trim() === '') {
+        errorMessages.push('Password is required and cannot be just spaces.');
+    } else if (password.length < 8) {
+        errorMessages.push('Password must be at least 8 characters long.');
+    } else if (spacePattern.test(password)) {
+        errorMessages.push('Password contains invalid spaces.');
+    }
+    
+    // Validate verify password
+    if (verifyPassword.trim() === '') {
+        errorMessages.push('Verify password is required and cannot be just spaces.');
+    } else if (verifyPassword !== password) {
+        errorMessages.push('Passwords do not match.');
+    }
+
+    // Display error messages or submit the form
+    if (errorMessages.length > 0) {
+        document.getElementById('errorMessages').innerHTML = errorMessages.join('<br>');
+    } else {
+        // Clear the error messages before performing the AJAX request
+        document.getElementById('errorMessages').innerHTML = '';
+        // Perform the AJAX request to submit the form data
+        $.ajax({
+            url: '/users/signup',
+            type: 'POST',
+            data: {
+                username: username.trim(),
+                email: email,
+                password: password,
+                verify: verifyPassword
+            },
+            success: function(response) {
+                // Clear the form fields
+                document.getElementById('username').value = '';
+                document.getElementById('email').value = '';
+                document.getElementById('password').value = '';
+                document.getElementById('verify').value = '';
+                // Redirect to the specified URL
+                window.location.href = response.redirect;
+            },
+            error: function(xhr) {
+                let errorResponse = JSON.parse(xhr.responseText);
+                document.getElementById('errorMessages').innerHTML = response.error;
+            }
+        });
+    }
+});
+</script>

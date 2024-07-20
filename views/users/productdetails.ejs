@@ -1,0 +1,339 @@
+
+
+<!-- Breadcrumbs Section -->
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <% breadcrumbs.forEach(function(crumb) { %>
+            <% if (crumb.active) { %>
+                <li class="breadcrumb-item active" aria-current="page">
+                    <%= crumb.name %>
+                </li>
+            <% } else { %>
+                <li class="breadcrumb-item">
+                    <a href="<%= crumb.url %>"><%= crumb.name %></a>
+                </li>
+            <% } %>
+        <% }); %>
+    </ol>
+</nav>
+
+<div class="container mt-5">
+    <div class="row" id="zoomrow">
+        <div class="col-md-6" id="pdetails">
+            <div class="zoom">
+                <!-- Small Image -->
+                <div class="original">
+                    <img src="<%= product.productImages[0] %>" id="target" alt="Product Image">
+                </div>
+                <!-- Large Image -->
+                <div class="viewer">
+                    <img src="<%= product.productImages[0] %>" alt="Zoomed Image">
+                </div>
+                <!-- Magnifier Effect -->
+                <div class="magnifier"></div>
+            </div>
+            <div class="carousel mt-3">
+                <% if (product.productImages && product.productImages.length > 0) { %>
+                    <% product.productImages.forEach(function(productImage, index) { %>
+                        <img src="<%= productImage %>" class="thumbnail" alt="Thumbnail <%= index + 1 %>" onclick="showImage('<%= productImage %>')">
+                    <% }); %>
+                <% } %>
+            </div>
+        </div>
+        <div class="detaildiv col-md-6">
+            <h6><%= product.brandName %></h6>
+            <h3><%= product.productName %></h3>
+
+             <!-- Hidden input to store userId -->
+            <input type="hidden" id="userId" value="<%= user ? user._id : '' %>">
+
+            <p class="buyclick"><span>Click BUY NOW,</span>You Can Select there <br>Your Favourite Colors & Perfect Fit Size!!</p>
+            <!--ORIGINAL PRICE-->
+                <p class="original-price">Original Price: <i class="fas fa-rupee-sign"></i> <%= product.price %></p>
+            <!--PRODUCT OFFER-->
+            <% if (product.offers && product.offers.length > 0) { %>
+                <% product.offers.forEach(function(offer) { %>
+                    <% if (offer.discount) { %>
+                        <% const offeredPrice = product.price - (product.price * (offer.discount / 100)); %>
+                        <p>Offered Price: <i class="fas fa-rupee-sign"></i> <%= offeredPrice.toFixed(2) %></p>
+                        <!-- Display Offer Percentage -->
+                        <p class="discount">
+                            <span><%= offer.discount %>%</span> Offer available
+                        </p>
+                    <% } %>
+                <% }); %>
+            <% } else { %>
+                <!-- If there's no Offer, hide the Offer section -->
+                <p>No Offer available</p>
+            <% } %>                   
+            <!--Discount-->
+            <% if (product.discountPrice && product.discountPrice < product.price) { %>
+                <p>Discounted Price: <i class="fas fa-rupee-sign"></i> <%= product.discountPrice %></p>
+                <!-- Display Discount Percentage -->
+                <p class="discount">
+                    <% const discountPercentage = ((product.price - product.discountPrice) / product.price) * 100; %>
+                    <span><%= discountPercentage.toFixed(0) %>%</span> discount available
+                </p>
+            <% } else { %>
+                <!-- If there's no discount, hide the discount section -->
+                <p>No discount available</p>
+            <% } %>
+            <!--STOCK-->
+            <% if (product.stock > 0) { %>
+            <p>Stock: <%= product.stock%></p>
+            <% } else { %>
+                <span class="text-danger">Out of Stock</span> 
+            <% } %>
+            <p class="card-text">
+                <span class="stars">
+                    <% for(let i = 1; i <= 5; i++) { %>
+                        <% if(i <= Math.floor(product.starRating)) { %>
+                            <i class="fas fa-star"></i>
+                        <% } else if(i === Math.ceil(product.starRating)) { %>
+                            <i class="fas fa-star-half-alt"></i>
+                        <% } else { %>
+                            <i class="far fa-star"></i>
+                        <% } %>
+                    <% } %>
+                </span>
+                <span>(<%= product.starRating %>)</span>
+            </p>
+            <div class="buttonszoom">
+                <a class="btn btn-primary btn-add-to-cart" data-product-id="<%= product._id %>">Add to Cart</a>
+                <button class="btn btn-success" id="buy">Buy Now</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Highlights & Specifications Section -->
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-12">
+            <% if (product.highlights && product.highlights.length > 0) { %>
+                <h4>Product Highlights</h4>
+                <ul>
+                    <% product.highlights.forEach(function(highlight) { %>
+                        <li><%= highlight %></li>
+                    <% }); %>
+                </ul>
+            <% } %>
+
+            <% if (product.specifications && Object.keys(product.specifications).length > 0) { %>
+                <h4>Specifications</h4>
+                <table class="table table-bordered"  style="width:50%">
+                    <% Object.keys(product.specifications).forEach(function(key) { %>
+                        <tr>
+                            <th><%= key %></th>
+                            <td><%= product.specifications[key] %></td>
+                        </tr>
+                    <% }); %>
+                </table>
+            <% } %>
+        </div>
+    </div>
+</div>
+
+<!-- Add Review Form -->
+<div class="add-review mt-5 text-center shadow-lg">
+    <h2>Review Box</h2>
+    <form id="review-form">
+        <div class="mb-3">
+            <label for="user-name" class="form-label">Your Name</label>
+            <input type="text" class="form-control" id="user-name" required placeholder="Enter Your Name">
+        </div>
+        <div class="mb-3">
+            <label for="user-rating" class="form-label">Your Rating</label>
+            <select class="form-select" id="user-rating" required>
+                <option value="5">5</option>
+                <option value="4.5">4.5</option>
+                <option value="4">4</option>
+                <option value="3.5">3.5</opton>
+                <option value="3">3</option>
+                <option value="2.5">2.5</option>
+                <option value="2">2</option>
+                <option value="1.5">1.5</option>
+                <option value="1">1</option>
+                <option value="0.5">0.5</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="user-comment" class="form-label">Your Comment</label>
+            <textarea class="form-control" id="user-comment" rows="3" required placeholder="Please Comment here..."></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Submit Review</button>
+    </form>
+</div>
+
+<!-- Display Reviews -->
+<div class="reviews mt-5">
+    <h2 class="reviews-title">Customer Reviews</h2>
+    <div id="reviews-list" class="review-list">
+        <!-- Existing Reviews Will Be Displayed Here -->
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        // Initialize zoom on the target image
+        var zoomObject = $('#target').zoom({
+            magnify: 5 // Change '5' to the desired magnification level
+        });
+
+        // Function to show the selected image
+        window.showImage = function(imageUrl) {
+            $('#target').attr('src', imageUrl);
+            $('.viewer img').attr('src', imageUrl);
+            zoomObject.setZoom(5); // Reinitialize zoom on the new image
+        };
+        // Call showImage function with the URL of the first image initially
+        showImage('<%= product.productImages[0] %>');
+
+
+       
+        // Review form submission
+        $('#review-form').submit(function(event) {
+            event.preventDefault();
+
+            const userName = $('#user-name').val();
+            const userRating = $('#user-rating').val();
+            const userComment = $('#user-comment').val();
+            const productId = "<%= product._id %>"; // Get product ID
+
+            const reviewData = {
+                user: userName,
+                rating: userRating,
+                comment: userComment
+            };
+
+
+
+            // Send review data to the server
+            $.ajax({
+            url: `/users/product-details/${productId}/reviews`,
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(reviewData),
+            success: function(response) {
+                if (response.success) {
+                    const fullStars = Math.floor(userRating);
+                    const halfStar = userRating % 1 !== 0;
+                    const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
+
+                    const starHtml = 
+                        Array.from({ length: fullStars }).map(() => '<i class="fas fa-star"></i>').join('') +
+                        (halfStar ? '<i class="fas fa-star-half-alt"></i>' : '') +
+                        Array.from({ length: emptyStars }).map(() => '<i class="far fa-star"></i>').join('');
+
+                    const newReview = `
+                        <div class="review">
+                            <strong>${userName}</strong>
+                            <div class="ratings">
+                                ${starHtml}
+                            </div>
+                            <p>${userComment}</p>
+                        </div>
+                    `;
+                    $('#reviews-list').append(newReview);
+
+                    // Clear the form fields
+                    $('#user-name').val('');
+                    $('#user-rating').val('');
+                    $('#user-comment').val('');
+                } else {
+                    alert("Failed to submit review. Please try again later.");
+                }
+            },
+            error: function(xhr, status, error) {
+                alert("Failed to submit review. Please try again later.");
+            }
+        });
+    });
+
+    // FETCHING REVIEW DATA FROM DATABASE
+    $(document).ready(function() {
+        const productId = "<%= product._id %>"; // Ensure this gets the correct product ID
+        $.ajax({
+            url: `/users/product-details/${productId}/reviews`, // Adjust the URL as necessary
+            type: 'GET',
+            success: function(response) {
+                if (response.success) {
+                    if (response.reviews.length === 0) {
+                        $('#reviews-list').append('<p>No reviews yet. Be the first to review this product!</p>');
+                    } else {
+                        response.reviews.forEach(review => {
+                            const fullStars = Math.floor(review.rating);
+                            const halfStar = review.rating % 1 !== 0;
+                            const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
+
+                            const starHtml = 
+                                Array.from({ length: fullStars }).map(() => '<i class="fas fa-star"></i>').join('') +
+                                (halfStar ? '<i class="fas fa-star-half-alt"></i>' : '') +
+                                Array.from({ length: emptyStars }).map(() => '<i class="far fa-star"></i>').join('');
+
+                            const reviewHtml = `
+                                <div class="review">
+                                    <strong>${review.user}</strong>
+                                    <div class="ratings">
+                                        ${starHtml}
+                                    </div>
+                                    <p>${review.comment}</p>
+                                </div>
+                            `;
+                            $('#reviews-list').append(reviewHtml);
+                        });
+                    }
+                } else {
+                    $('#reviews-list').append('<p>Failed to load reviews. Please try again later.</p>');
+                }
+            },
+            error: function(xhr, status, error) {
+                $('#reviews-list').append('<p>Failed to load reviews. Please try again later.</p>');
+            }
+        });
+    });
+      
+
+            // Handle click on product carousel
+    $('[id^="carousel"]').on('click', function() {
+        // Access the product ID from the clicked carousel
+        var productId = $(this).attr('id').replace('carousel', '');
+        // Redirect to product details page using the product ID
+        window.location.href = '/users/product-details/' + productId;
+    });
+
+    // Handle add to cart button click
+    $('.btn-add-to-cart').on('click', function() {
+        // Retrieve userId from hidden input
+        var userId = $('#userId').val();
+        var productId = $(this).data('product-id');
+        // Default quantity is 1
+        var quantity = 1;
+
+        $.ajax({
+            url: '/users/add-cart',
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ productId: productId, userId: userId, quantity: quantity, color: [], size: [] }),
+            success: function(response) {
+                if (response.success) {
+                    alert('Product added to cart successfully');
+                    $('#cartCount').text(response.cartItemCount); // Update cart count
+                } else {
+                    alert(response.message || 'Failed to add product to cart. Please try again later.');
+                }
+            },
+            error: function(xhr, status, error) {
+                alert('Error adding product to cart');
+            }
+        });
+    });
+     
+
+
+
+
+});
+</script>

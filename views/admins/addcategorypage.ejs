@@ -1,0 +1,55 @@
+<div class="container d-flex flex-column align-items-center justify-content-center vh-100">
+  <h1 class="mb-4">Add Category</h1>
+  <div class="addcategory shadow-lg rounded p-4">
+      <form id="addCategoryForm" action="/admin/add-category" method="POST">
+          <div class="form-group">
+              <label for="categoryName" class="form-label">Category Name:</label>
+              <input type="text" name="categoryName" id="categoryName" class="form-control">
+              <div id="categoryNameError" class="invalid-feedback">Category Name is required.</div>
+          </div>
+          <div class="form-group">
+              <label for="isActive" class="form-label">Active:</label>
+              <select name="isActive" id="isActive" class="form-control">
+                  <option value="">Select</option>
+                  <option value="true">Yes</option>
+                  <option value="false">No</option>
+              </select>
+              <div id="isActiveError" class="invalid-feedback">Please select Active status.</div>
+          </div>
+          <button type="submit" class="btn btn-primary btn-block">Add Category</button>
+      </form>
+  </div>
+</div>
+
+<script>
+  document.getElementById('addCategoryForm').addEventListener('submit', function(event) {
+      const categoryName = document.getElementById('categoryName').value.trim();
+      const isActive = document.getElementById('isActive').value;
+
+      let isValid = true;
+
+      // Validate Category Name
+      if (categoryName === '') {
+          isValid = false;
+          document.getElementById('categoryName').classList.add('is-invalid');
+          document.getElementById('categoryNameError').textContent = 'Category Name is required.';
+      } else {
+          document.getElementById('categoryName').classList.remove('is-invalid');
+          document.getElementById('categoryNameError').textContent = '';
+      }
+
+      // Validate Active status
+      if (isActive === '') {
+          isValid = false;
+          document.getElementById('isActive').classList.add('is-invalid');
+          document.getElementById('isActiveError').textContent = 'Please select Active status.';
+      } else {
+          document.getElementById('isActive').classList.remove('is-invalid');
+          document.getElementById('isActiveError').textContent = '';
+      }
+
+      if (!isValid) {
+          event.preventDefault(); // Prevent form submission if validation fails
+      }
+  });
+</script>

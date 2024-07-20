@@ -1,0 +1,186 @@
+<div class="product-content">
+    <!-- Search Input and Button -->
+    <div class="row">
+        <div class="col-md-6">
+            <h1>Products</h1>
+            <div class="input-group mb-3">
+                <input id="searchinput" type="text" class="form-control" placeholder="Search for products" aria-label="Search for products" aria-describedby="button-addon2">
+                <div class="input-group-append">
+                    <button class="btn btn-dark" type="submit" id="button-addon2">Search</button>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <a href="/admin/add-product" class="btn btn-primary float-right">Add Product</a>
+        </div>
+    </div>
+
+    <!-- Product Table -->
+    <div class="product-table-container">
+        <h2>Product List</h2>
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead class="thead-light">
+                    <tr>
+                        <th>Serial</th>
+                        <th>Product Image</th>
+                        <th>Brand Name</th>
+                        <th>Product Name</th>
+                        <th>Category</th>
+                        <th>Details</th>
+                        <th>Edit</th>
+                        <th>Delete</th>
+                    </tr>
+                </thead>
+                <tbody id="productListTable">
+                    <% products.forEach((product, index) => { %>
+                        <% if (!product.isDeleted) { %>
+                            <tr>
+                                <td><%= (currentPage - 1) * 5 + index + 1 %></td>
+                                <td><img src="<%= product.productImages[0] %>" alt="Product Image" width="100"></td>
+                                <td><%= product.brandName %></td>
+                                <td><%= product.productName %></td>
+                                <td><%= product.productCategory?.categoryName %></td>
+                                <td>
+                                    <a href="/admin/product-details/<%= product._id %>" class="btn btn-outline-info"><i class="fas fa-info-circle"></i> Details</a>
+                                </td>
+                                <td>
+                                    <a href="/admin/edit-product/<%= product._id %>" class="btn btn-outline-warning"><i class="fas fa-edit"></i>Edit</a>
+                                </td>
+                                <td>
+                                    <form action="/admin/delete-product/<%= product._id %>" method="POST" class="d-inline">
+                                        <button type="submit" class="btn btn-outline-danger"><i class="fas fa-trash-alt"></i>Soft Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        <% } %>
+                    <% }); %>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination Controls -->
+        <div class="row mt-4">
+            <div class="col-md-12 col-12">
+                <nav aria-label="Page navigation">
+                    <ul class="pagination justify-content-center">
+                        <% for(let i = 1; i <= totalPages; i++) { %>
+                            <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                                <a class="page-link" href="/admin/products?page=<%= i %>"><%= i %></a>
+                            </li>
+                        <% } %>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <!-- Deleted Product Table -->
+    <div class="product-table-container">
+        <h2>Deleted Product List</h2>
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead class="thead-light">
+                    <tr>
+                        <th>Serial</th>
+                        <th>Product Image</th>
+                        <th>Brand Name</th>
+                        <th>Product Name</th>
+                        <th>Category</th>
+                        <th>Details</th>
+                        <th>Restore</th>
+                    </tr>
+                </thead>
+                <tbody id="deletedProductListTable">
+                    <% deletedProducts.forEach((product, index) => { %>
+                        <!-- Show only deleted products -->
+                        <tr>
+                            <td><%= index + 1 %></td>
+                            <td><img src="<%= product.productImages[0] %>" alt="Product Image" width="100"></td>
+                            <td><%= product.brandName %></td>
+                            <td><%= product.productName %></td>
+                            <td><%= product.productCategory?.categoryName %></td>
+                            <td>
+                                <!-- Details Button -->
+                                <a href="/admin/product-details/<%= product._id %>" class="btn btn-outline-info"><i class="fas fa-info-circle"></i> Details</a>
+                            </td>
+                            <td>
+                                <!-- Restore Button -->
+                                <form action="/admin/restore-product/<%= product._id %>" method="POST" class="d-inline">
+                                    <button type="submit" class="btn btn-outline-success"><i class="fas fa-undo"></i>Restore</button>
+                                </form>
+                            </td>
+                        </tr>
+                    <% }); %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    document.getElementById('button-addon2').addEventListener('click', async function(event) {
+        event.preventDefault(); 
+        const searchInput = document.getElementById('searchinput').value.trim();
+        if (searchInput) {
+            try {
+                const response = await fetch(`/admin/product-search?q=${searchInput}&page=1`);
+                if (!response.ok) {
+                    throw new Error('Failed to fetch search results');
+                }
+                const data = await response.json();
+                const { products, currentPage, totalPages } = data;
+
+                const tableBody = document.getElementById('productListTable');
+                tableBody.innerHTML = '';
+                if (products.length > 0) {
+                    products.forEach((product, index) => {
+                        const row = `
+                            <tr>
+                                <td>${(currentPage - 1) * 5 + index + 1}</td>
+                                <td><img src="${product.productImages[0]}" alt="Product Image" width="100"></td>
+                                <td>${product.brandName}</td>
+                                <td>${product.productName}</td>
+                                <td>${product.productCategory.categoryName}</td>
+                                <td>${product.price}</td>
+                                <td>
+                                    <a href="/admin/product-details/${product._id}" class="btn btn-outline-info"><i class="fas fa-info-circle"></i> Details</a>
+                                </td>
+                                <td>
+                                    <a href="/admin/edit-product/${product._id}" class="btn btn-outline-warning"><i class="fas fa-edit"></i>Edit</a>
+                                </td>
+                                <td>
+                                    <form action="/admin/delete-product/${product._id}" method="POST" class="d-inline">
+                                        <button type="submit" class="btn btn-outline-danger"><i class="fas fa-trash-alt"></i>Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        `;
+                        tableBody.insertAdjacentHTML('beforeend', row);
+                    });
+
+                    // Update pagination controls
+                    const paginationControls = document.querySelector('.pagination');
+                    paginationControls.innerHTML = '';
+                    for (let i = 1; i <= totalPages; i++) {
+                        const pageItem = `
+                            <li class="page-item ${i === currentPage ? 'active' : ''}">
+                                <a class="page-link" href="/admin/products?page=${i}">${i}</a>
+                            </li>
+                        `;
+                        paginationControls.insertAdjacentHTML('beforeend', pageItem);
+                    }
+                } else {
+                    const row = '<tr><td colspan="8">No results found</td></tr>';
+                    tableBody.insertAdjacentHTML('beforeend', row);
+                }
+            } catch (error) {
+                console.error(error);
+                alert('Error fetching search results');
+            }
+        } else {
+            location.reload(); 
+        }
+    });
+</script>

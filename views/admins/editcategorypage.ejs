@@ -1,0 +1,44 @@
+<style>
+    .editcategory {
+      height: auto;
+      width: 100%;
+      max-width: 500px;
+      background: #fff;
+    }
+    .form-label {
+      font-weight: bold;
+      color: #333;
+    }
+    .form-control {
+      border-radius: 0;
+    }
+    .btn-primary {
+      background-color: #007bff;
+      border-color: #007bff;
+      border-radius: 0;
+    }
+    .btn-primary:hover {
+      background-color: #0056b3;
+      border-color: #0056b3;
+    }
+  </style>
+
+<div class="container d-flex flex-column align-items-center justify-content-center vh-100">
+    <h1 class="mb-4">Edit Category</h1>
+    <div class="editcategory shadow-lg rounded p-4">
+      <form action="/admin/update-category/<%= category._id %>" method="POST">
+        <div class="form-group">
+          <label for="categoryName" class="form-label">Category Name:</label>
+          <input type="text" name="categoryName" id="categoryName" class="form-control" value="<%= category.categoryName %>" required>
+        </div>
+        <div class="form-group">
+          <label for="isActive" class="form-label">Status:</label>
+          <select name="isActive" id="isActive" class="form-control" required>
+            <option value="true" <% if (category.isActive === true) { %> selected <% } %>>Yes</option>
+            <option value="false" <% if (category.isActive === false) { %> selected <% } %>>No</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Update Category</button>
+      </form>
+    </div>
+  </div>

@@ -1,0 +1,56 @@
+<style>
+   .top-sellings-container {
+            width: 80%;
+            margin: 0 auto;
+            margin-left: 220px;
+            margin-top: 50px;
+            margin-bottom: 50px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+        .top-sellings-header {
+            text-align: center;
+            color: #333;
+        }
+        .top-sellings-list {
+            list-style: none;
+            padding: 0;
+        }
+        .top-sellings-item {
+            padding: 10px;
+            margin: 5px 0;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .top-sellings-item strong {
+            color: #007bff;
+        }
+</style>
+
+<div class="top-sellings-container">
+  <h1 class="top-sellings-header">Top Selling Products</h1>
+  <ul class="top-sellings-list">
+      <% topSellingProducts.forEach(product => { %>
+          <li class="top-sellings-item"><strong><%= product.name %></strong> - Sold: <%= product.totalSold %></li>
+      <% }); %>
+  </ul>
+
+  
+    <h1 class="top-sellings-header">Top Selling Categories</h1>
+    <ul class="top-sellings-list">
+        <% topSellingCategories.forEach(category => { %>
+            <li class="top-sellings-item"><strong><%= category.name %></strong> - Sold: <%= category.totalSold %></li>
+        <% }); %>
+    </ul>
+
+
+  <h1 class="top-sellings-header">Top Selling Brands</h1>
+  <ul class="top-sellings-list">
+      <% topSellingBrands.forEach(brand => { %>
+          <li class="top-sellings-item"><strong><%= brand._id %></strong> - Sold: <%= brand.totalSold %></li>
+      <% }); %>
+  </ul>
+</div>

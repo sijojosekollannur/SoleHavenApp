@@ -1,0 +1,133 @@
+<style>
+    .order-table th, .order-table td {
+      vertical-align: middle;
+      text-align: center;
+    }
+    .order-table .address-block {
+      text-align: left;
+    }
+    .order-actions {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+    .main-content{
+        margin-top: 10px;
+        padding-right: 100px;
+    }
+    .order-table > tbody > tr > td {
+    vertical-align: middle;
+  }
+  .order-table > tbody > tr > td:nth-child(3) {
+    padding: 0;
+  }
+  .order-table > tbody > tr > td:nth-child(3) .table {
+    margin-bottom: 0;
+  }
+  .order-table > tbody > tr > td:nth-child(3) .table td {
+    vertical-align: middle;
+  }
+  </style>
+
+<div class="main-content container">
+    <h1>Orders</h1>
+    <!-- Search Form -->
+    <div class="row mb-3">
+      <div class="col-md-6">
+        <div class="input-group">
+          <input type="text" class="form-control" placeholder="Search for orders...">
+          <div class="input-group-append">
+            <button class="btn btn-dark" type="button">Search</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Order Table -->
+    <div class="row">
+      <div class="col-md-12">
+        <h2>Order List</h2>
+        <table class="table table-bordered order-table">
+          <thead class="thead-dark">
+            <tr>
+              <th>S/N</th>
+              <th>Customer Name/ID</th>
+              <th>Orders</th>
+            </tr>
+          </thead>
+          <tbody id="orderListTable">
+            <% 
+            let userOrders = {};
+            orders.forEach(order => {
+              if (!userOrders[order.user._id]) {
+                userOrders[order.user._id] = [];
+              }
+              userOrders[order.user._id].push(order);
+            });
+            
+            let index = 1;
+            for (const [userId, userOrderList] of Object.entries(userOrders)) { 
+              const latestOrder = userOrderList[0];
+            %>
+              <tr>
+                <td><%= index %></td>
+                <td><strong><%= latestOrder.user.name %></strong><br> (<%= userId %>)</td>
+                <td>
+                  <table class="table table-sm">
+                    <thead>
+                      <tr>
+                        <th>Order ID (Date)</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <% userOrderList.forEach(order => { %>
+                        <tr>
+                          <td>
+                            <a href="/admin/view-orders/<%= order._id %>" title="View Order Details">
+                              <%= order._id %> (<%= new Date(order.orderDate).toLocaleDateString() %>)
+                            </a>
+                          </td>
+                          <td><%= order.totalAmount.toFixed(2) %></td>
+                          <td>
+                            <% if (order.orderStatus === 'Returned') { %>
+                              <span class="badge badge-warning"><%= order.orderStatus %></span>
+                            <% } else { %>
+                              <form action="/admin/orders/<%= order._id %>?_method=PATCH" method="POST" class="form-inline">
+                                <select name="orderStatus" class="form-control form-control-sm" onchange="this.form.submit()">
+                                  <option value="Pending" <%= order.orderStatus === 'Pending' ? 'selected' : '' %>>Pending</option>
+                                  <option value="Processing" <%= order.orderStatus === 'Processing' ? 'selected' : '' %>>Processing</option>
+                                  <option value="Shipped" <%= order.orderStatus === 'Shipped' ? 'selected' : '' %>>Shipped</option>
+                                  <option value="Delivered" <%= order.orderStatus === 'Delivered' ? 'selected' : '' %>>Delivered</option>
+                                </select>
+                              </form>
+                            <% } %>
+                          </td>
+                          <td>
+                            <button class="btn btn-danger btn-sm" onclick="setupCancelModal('<%= order._id %>')">Cancel</button>
+                          </td>
+                        </tr>
+                      <% }); %>
+                    </tbody>
+                  </table>
+                </td>
+              </tr>
+            <% 
+              index++;
+            } 
+            %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+
+<script>
+    function setupCancelModal(orderId) {
+      if (confirm(`Are you sure you want to cancel this order?${orderId}`)) {
+            window.location.href = `/admin/orders/${orderId}`;
+        }
+    }
+  </script>

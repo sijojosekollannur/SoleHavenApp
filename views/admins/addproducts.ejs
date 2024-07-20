@@ -1,0 +1,520 @@
+<style>
+    .img-container {
+        width: 100%;
+        max-height: 400px;
+        overflow: hidden;
+        margin: auto;
+    }
+
+    #cropperImage {
+        max-width: 100%;
+    }
+
+    .cropper-view-box,
+    .cropper-face {
+        border: 1px solid #39f;
+    }
+    .cropper-line,
+    .cropper-point {
+        background-color: #39f;
+    }
+
+    .cropped-image-preview {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .cropped-image-preview img {
+        width: 100px;
+        height: 100px;
+        margin: 10px;
+    }
+    .is-invalid {
+        border-color: red;
+    }
+    .invalid-feedback {
+        color: red;
+        display: block;
+        font-size: 0.875em;
+    }
+</style>
+
+<div class="main-content">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card shadow-lg">
+                <div class="card-header bg-info font-weight-bold">
+                    <h4>Add Product</h4>
+                </div>
+                <div class="card-body">
+                    <form id="productForm" action="/admin/add-product" method="POST" enctype="multipart/form-data">
+                        <div class="form-group">
+                            <label for="productBrand">Brand Name:</label>
+                            <input type="text" id="productBrand" name="productBrand" class="form-control">
+                            <div id="productBrandError" class="invalid-feedback"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="productName">Product Name:</label>
+                            <input type="text" id="productName" name="productName" class="form-control">
+                            <div id="productNameError" class="invalid-feedback"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="productCategory">Product Category:</label>
+                            <select id="productCategory" name="productCategory" class="form-control">
+                                <option value="" disabled selected>Select Category</option>
+                                <% categories.forEach(category => { %>
+                                    <option value="<%= category._id %>"><%= category.categoryName %></option>
+                                <% }); %>
+                            </select>
+                            <div id="productCategoryError" class="invalid-feedback"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="productColor">Product Colors:</label>
+                            <input type="text" id="productColor" name="productColor" class="form-control">
+                            <div id="productColorError" class="invalid-feedback"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="productsizeInch">Product Size(Inch):</label>
+                            <input type="text" id="productsizeInch" name="productsizeInch" class="form-control">
+                            <div id="productsizeInchError" class="invalid-feedback"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="productPrice">Product Price:</label>
+                            <input type="number" id="productPrice" name="productPrice" class="form-control" min="1">
+                            <div id="productPriceError" class="invalid-feedback"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="discountPrice">Discount Price:</label>
+                            <input type="number" id="discountPrice" name="discountPrice" class="form-control" min="0">
+                            <div id="discountPriceError" class="invalid-feedback"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="productStock">Product Stock:</label>
+                            <input type="text" id="productStock" name="productStock" class="form-control" min="0">
+                            <div id="productStockError" class="invalid-feedback"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="starRating">Star Rating:</label>
+                            <select id="starRating" name="starRating" class="form-control">
+                                <option value="" disabled selected>Select Your Rating</option>
+                                <% for (let i = 0.5; i <= 5; i += 0.5) { %>
+                                    <option value="<%= i %>"><%= i %> Star</option>
+                                <% } %>
+                            </select>
+                            <div id="starRatingError" class="invalid-feedback"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="isFeatured">Is Featured:</label>
+                            <select id="isFeatured" name="isFeatured" class="form-control">
+                                <option value="false" selected>No</option>
+                                <option value="true">Yes</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="productHighlights">Product Highlights:</label>
+                            <textarea id="productHighlights" name="productHighlights" class="form-control" rows="3" placeholder="Enter product highlights"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="productSpecifications">Product Specifications:</label>
+                            <textarea id="productSpecifications" name="productSpecifications" class="form-control" rows="3" placeholder="Enter product specifications"></textarea>
+                            <div id="productSpecificationsError" class="invalid-feedback"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="productImages">Product Images:</label>
+                            <input type="file" id="productImages" name="productImages" class="form-control-file" accept="image/*" multiple required>
+                            <small class="form-text text-muted">Select up to 9 images for the product.</small>
+                            <div id="productImagesError" class="invalid-feedback"></div>
+                        </div>
+                        <div class="cropped-image-preview"></div>
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <a href="/admin/dashboard" class="btn btn-danger btn-block">Cancel</a>
+                            </div>
+                            <div class="col-md-6">
+                                <button type="submit" class="btn btn-primary btn-block">Add Product</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Image Cropping Modal -->
+<div id="cropModal" class="modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Crop Image</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="img-container">
+                    <img id="cropperImage" src="">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="cropButton">Crop</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+
+<script>
+     document.addEventListener("DOMContentLoaded", function () {
+        let cropper;
+        const cropperImage = document.getElementById('cropperImage');
+        const productImagesInput = document.getElementById('productImages');
+        const cropModal = $('#cropModal');
+        const cropButton = document.getElementById('cropButton');
+        const croppedImagesContainer = document.querySelector('.cropped-image-preview');
+        const productForm = document.getElementById('productForm');
+    
+        let imagesQueue = [];
+        let croppedImages = [];
+    
+        productImagesInput.addEventListener('change', function (event) {
+            const files = event.target.files;
+            if (files.length > 9) {
+                showError('productImages', 'You can only upload up to 9 images for the product.');
+                productImagesInput.value = '';
+                return;
+            }
+            const remainingImages = 3 - croppedImages.length;
+
+            if (croppedImages.length === 0 && files.length < 3) {
+           showError('productImages', 'You must upload a minimum of 3 images.');
+           productImagesInput.value = '';
+            return;
+          } else if (files.length < remainingImages) {
+           showError('productImages', `You must upload a minimum of 3 images. You need to add ${remainingImages} more.`);
+            productImagesInput.value = '';
+            return;
+          }
+
+            hideError('productImages');
+            imagesQueue = Array.from(files);
+            handleNextImage();
+        });
+    
+        function handleNextImage() {
+            if (imagesQueue.length === 0) {
+                cropModal.modal('hide');
+                return;
+            }
+    
+            const file = imagesQueue.shift();
+            const reader = new FileReader();
+    
+            reader.onload = function (e) {
+                cropperImage.src = e.target.result;
+                cropModal.modal('show');
+            };
+    
+            reader.readAsDataURL(file);
+        }
+    
+        cropModal.on('shown.bs.modal', function () {
+            cropper = new Cropper(cropperImage, {
+                aspectRatio: 16 / 9,
+                viewMode: 1,
+                autoCropArea: 0.5,
+                minContainerWidth: 400,
+                minContainerHeight: 400,
+                background: true,
+                responsive: true,
+                zoomable: true,
+                scalable: true,
+                movable: true,
+                cropBoxResizable: true,
+                toggleDragModeOnDblclick: false
+            });
+        });
+    
+        cropModal.on('hidden.bs.modal', function () {
+            if (cropper) {
+                cropper.destroy();
+                cropper = null;
+            }
+            handleNextImage();
+        });
+
+        cropButton.onclick = function () {
+    if (!cropper) return;
+
+    cropper.getCroppedCanvas().toBlob(function (blob) {
+        const croppedFile = new File([blob], `cropped_image_${croppedImages.length}.jpg`, { type: blob.type });
+        croppedImages.push(croppedFile);
+
+        const imgElement = document.createElement('img');
+        imgElement.src = URL.createObjectURL(croppedFile);
+        imgElement.style.width = '100px'; // Set the image width
+        imgElement.style.margin = '10px'; // Add some margin
+
+        const removeButton = document.createElement('button');
+        removeButton.textContent = 'Remove';
+        removeButton.className = 'btn btn-danger btn-sm';
+        removeButton.style.marginTop = '10px'; // Align with the image
+
+        removeButton.onclick = function () {
+            // Find the index of the croppedFile in croppedImages
+            const index = croppedImages.indexOf(croppedFile);
+            if (index > -1) {
+                // Remove the cropped image from croppedImages array
+                croppedImages.splice(index, 1);
+
+                // Remove the corresponding file from the input field
+                const dataTransfer = new DataTransfer();
+                Array.from(productImagesInput.files).forEach((file, i) => {
+                    if (i !== index) {
+                        dataTransfer.items.add(file);
+                    }
+                });
+                productImagesInput.files = dataTransfer.files;
+
+                // Remove the image preview from UI
+                imgElement.remove();
+                removeButton.remove();
+
+                // Optionally, update any UI elements like file count display
+                const fileCountDisplay = document.getElementById('fileCountDisplay'); // Adjust with your HTML structure
+                if (fileCountDisplay) {
+                    fileCountDisplay.textContent = `Remaining images: ${productImagesInput.files.length}`;
+                }
+            }
+        };
+
+        const div = document.createElement('div');
+        div.style.display = 'inline-block';
+        div.appendChild(imgElement);
+        div.appendChild(removeButton);
+        croppedImagesContainer.appendChild(div);
+
+        // Clean up Cropper and Modal state
+        cropper.destroy();
+        cropper = null;
+        cropperImage.src = '';
+
+        cropModal.modal('hide');
+    }, 'image/jpeg');
+   };
+
+
+        productForm.addEventListener('submit', function (event) {
+            event.preventDefault();
+    
+            if (!validateForm()) {
+                return;
+            }
+    
+            if (croppedImages.length === 0) {
+                showError('productImages', 'Please choose and crop images before adding the product.');
+                return;
+            }
+    
+            const formData = new FormData(productForm);
+    
+            croppedImages.forEach((image, index) => {
+                formData.append('croppedImages[]', image, `croppedImages${index}.jpg`);
+            });
+    
+            fetch(productForm.action, {
+                method: 'POST',
+                body: formData,
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    console.log('Success:', data.message);
+                    croppedImagesContainer.innerHTML = '';
+                    productImagesInput.value = '';
+                    window.location.href = '/admin/add-product';
+
+                    // Show alert message
+                    alert('Product saved successfully!');
+                } else {
+                    throw new Error(data.message);
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again later.');
+            });
+        });
+    
+        function showError(inputId, message) {
+            const input = document.getElementById(inputId);
+            input.classList.add('is-invalid');
+            const errorDiv = document.getElementById(`${inputId}Error`);
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+    
+        function hideError(inputId) {
+            const input = document.getElementById(inputId);
+            input.classList.remove('is-invalid');
+            const errorDiv = document.getElementById(`${inputId}Error`);
+            errorDiv.textContent = '';
+            errorDiv.style.display = 'none';
+        }
+    
+    function validateForm() {
+    let isValid = true;
+
+    // Example validation for productBrand
+    const productBrand = document.getElementById('productBrand').value.trim();
+    if (productBrand === '') {
+        isValid = false;
+        document.getElementById('productBrand').classList.add('is-invalid');
+        document.getElementById('productBrandError').textContent = 'Brand Name is required.';
+    } else if (/^\s+$/.test(productBrand)) {
+        isValid = false;
+        document.getElementById('productBrand').classList.add('is-invalid');
+        document.getElementById('productBrandError').textContent = 'Invalid input: Only spaces are not allowed.';
+    } else {
+        document.getElementById('productBrand').classList.remove('is-invalid');
+        document.getElementById('productBrandError').textContent = '';
+    }
+
+    // Validation for productName
+    const productName = document.getElementById('productName').value.trim();
+    if (productName === '') {
+        isValid = false;
+        document.getElementById('productName').classList.add('is-invalid');
+        document.getElementById('productNameError').textContent = 'Product Name is required.';
+    } else if (/^\s+$/.test(productName)) {
+        isValid = false;
+        document.getElementById('productName').classList.add('is-invalid');
+        document.getElementById('productNameError').textContent = 'Invalid input: Only spaces are not allowed.';
+    } else {
+        document.getElementById('productName').classList.remove('is-invalid');
+        document.getElementById('productNameError').textContent = '';
+    }
+
+    // Validation for productCategory
+    const productCategory = document.getElementById('productCategory').value;
+    if (productCategory === '') {
+        isValid = false;
+        document.getElementById('productCategory').classList.add('is-invalid');
+        document.getElementById('productCategoryError').textContent = 'Please select a Product Category.';
+    } else {
+        document.getElementById('productCategory').classList.remove('is-invalid');
+        document.getElementById('productCategoryError').textContent = '';
+    }
+
+    // Validation for productColor
+    const productColor = document.getElementById('productColor').value.trim();
+    if (productColor === '') {
+        isValid = false;
+        document.getElementById('productColor').classList.add('is-invalid');
+        document.getElementById('productColorError').textContent = 'Product Colors are required.';
+    } else if (/^\s+$/.test(productColor)) {
+        isValid = false;
+        document.getElementById('productColor').classList.add('is-invalid');
+        document.getElementById('productColorError').textContent = 'Invalid input: Use commas or spaces between colors.';
+    } else {
+        document.getElementById('productColor').classList.remove('is-invalid');
+        document.getElementById('productColorError').textContent = '';
+    }
+
+    // Validation for productsizeInch
+    const productsizeInch = document.getElementById('productsizeInch').value.trim();
+    if (productsizeInch === '') {
+        isValid = false;
+        document.getElementById('productsizeInch').classList.add('is-invalid');
+        document.getElementById('productsizeInchError').textContent = 'Product Size (Inch) is required.';
+    } else if (/^\s+$/.test(productsizeInch) || parseInt(productsizeInch) < 6 || parseInt(productsizeInch) > 12) {
+        isValid = false;
+        document.getElementById('productsizeInch').classList.add('is-invalid');
+        document.getElementById('productsizeInchError').textContent = 'Invalid input: Enter a number between 6 and 12.';
+    } else {
+        document.getElementById('productsizeInch').classList.remove('is-invalid');
+        document.getElementById('productsizeInchError').textContent = '';
+    }
+
+    // Validation for productPrice
+    const productPrice = document.getElementById('productPrice').value;
+    if (productPrice === '' || isNaN(productPrice) || parseFloat(productPrice) < 1) {
+        isValid = false;
+        document.getElementById('productPrice').classList.add('is-invalid');
+        document.getElementById('productPriceError').textContent = 'Product Price is required and must be at least 1.';
+    } else {
+        document.getElementById('productPrice').classList.remove('is-invalid');
+        document.getElementById('productPriceError').textContent = '';
+    }
+
+    // Validation for productStock
+    const productStock = document.getElementById('productStock').value;
+        if (productStock === '' || isNaN(productStock) || parseInt(productStock) < 0 || !Number.isInteger(parseFloat(productStock))) {
+            isValid = false;
+            document.getElementById('productStock').classList.add('is-invalid');
+            document.getElementById('productStockError').textContent = 'Product Stock is required and must be a non-negative integer.';
+        } else {
+            document.getElementById('productStock').classList.remove('is-invalid');
+            document.getElementById('productStockError').textContent = '';
+        }
+
+    // Validation for starRating
+    const starRating = document.getElementById('starRating').value;
+    if (starRating === '') {
+        isValid = false;
+        document.getElementById('starRating').classList.add('is-invalid');
+        document.getElementById('starRatingError').textContent = 'Star Rating is required.';
+    } else {
+        document.getElementById('starRating').classList.remove('is-invalid');
+        document.getElementById('starRatingError').textContent = '';
+    }
+
+    // Validation for productSpecifications
+    const productSpecifications = document.getElementById('productSpecifications').value.trim();
+    if (productSpecifications.trim() === '') {
+    isValid = false;
+    document.getElementById('productSpecifications').classList.add('is-invalid');
+    document.getElementById('productSpecificationsError').textContent = 'Product Specifications are required.';
+   } else if (/^\s+$/.test(productSpecifications)) {
+    isValid = false;
+    document.getElementById('productSpecifications').classList.add('is-invalid');
+    document.getElementById('productSpecificationsError').textContent = 'Invalid input: Only spaces are not allowed.';
+    } else {
+    document.getElementById('productSpecifications').classList.remove('is-invalid');
+    document.getElementById('productSpecificationsError').textContent = '';
+    }
+    // Return the overall validation status
+    return isValid;
+}
+        function showError(elementId, message) {
+            const field = document.getElementById(elementId);
+            const errorElement = document.getElementById(elementId + 'Error');
+            if (errorElement) {
+                errorElement.textContent = message;
+                errorElement.style.display = 'block';
+            }
+            field.classList.add('is-invalid');
+        }
+    
+        function hideError(elementId) {
+            const field = document.getElementById(elementId);
+            const errorElement = document.getElementById(elementId + 'Error');
+            if (errorElement) {
+                errorElement.textContent = '';
+                errorElement.style.display = 'none';
+            }
+            field.classList.remove('is-invalid');
+        }
+    });
+</script>
+    

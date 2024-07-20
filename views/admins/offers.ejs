@@ -1,0 +1,120 @@
+<style>
+    .container{
+        margin-left: 210px;
+        padding-right: 40px;
+        margin-bottom: 50px;
+    }
+    .offer-list {
+        margin-top: 20px;
+    }
+    .offer {
+        border: 1px solid #ccc;
+        padding: 10px;
+        margin-bottom: 10px;
+    }
+    .table-container {
+        margin-top: 10px;
+    }
+</style>
+
+<div class="container mt-5">
+    <h2>Manage Offers</h2>
+    <!-- Product Offers Section -->
+    <section id="productOffers" class="table-container">
+        <h3>Product Offers</h3>
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Category</th>
+                        <th>Discount (%)</th>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% productsOffers.forEach(product => { %>
+                        <% product.offers.forEach(offer => { %>
+                            <tr>
+                                <td><%= product.brandName %> - <%= product.productName %></td>
+                                <td><%= product.productCategory.categoryName %></td>
+                                <td><%= offer.discount %></td>
+                                <td><%= offer.startDate.toDateString() %></td>
+                                <td><%= offer.endDate.toDateString() %></td>
+                            </tr>
+                        <% }) %>
+                    <% }) %>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- Category Offers Section -->
+    <section id="categoryOffers" class="table-container mt-5">
+        <h3>Category Offers</h3>
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Discount (%)</th>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% categoryOffers.forEach(category => { %>
+                        <% category.offers.forEach(offer => { %>
+                            <tr>
+                                <td><%= category.categoryName %></td>
+                                <td><%= offer.discount %></td>
+                                <td><%= offer.startDate.toDateString() %></td>
+                                <td><%= offer.endDate.toDateString() %></td>
+                            </tr>
+                        <% }) %>
+                    <% }) %>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- Referral Offers Section -->
+    <section id="referralOffers" class="table-container mt-5">
+        <h3>Referral Offers</h3>
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Referrer Name</th>
+                        <th>Referral Code</th>
+                        <th>Referral Count</th>
+                        <th>Discount (%)</th>
+                        <th>Valid For (Days)</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% referralData.forEach(referral => { %>
+                        <tr>
+                            <td><%= referral.referrerName %></td>
+                            <td><%= referral.referralCode %></td>
+                            <td><%= referral.referralCount %></td>
+                            <td>
+                                <%= referral.discount %>
+                            </td>
+                            <td>
+                                <%= referral.validFor %>
+                            </td>
+                            <td><%= referral.status %></td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </div>
+    </section>    
+    <div class="col-md-6">
+        <a href="/admin/add-offers" class="btn btn-primary offerbtn">Add Offers</a>
+    </div>
+</div>
+

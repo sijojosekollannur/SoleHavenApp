@@ -1,0 +1,42 @@
+
+<div class="main-content">
+    <!-- Add Banner Button -->
+    <div class="row justify-content-end mb-3">
+        <div class="col-md-2">
+            <a href="/admin/add-banner" class="btn btn-primary btn-block">Add Banner</a>
+        </div>
+    </div>
+
+    <!-- Banner Table -->
+    <div class="row">
+        <div class="col-md-12">
+            <h2>Banner List</h2>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Banner Image</th>
+                        <th>Image Description</th>
+                        <th>Active</th>
+                        <th>Remove</th>
+                    </tr>
+                </thead>
+                <tbody id="bannerListTable">
+                    <!-- Banner data will be dynamically populated here -->
+                    <tr>
+                        <td><img src="banner1.jpg" alt="Banner 1" style="max-width: 100px;"></td>
+                        <td>Description 1</td>
+                        <td>Yes</td>
+                        <td><a href="/admin/delete-banner" class="btn btn-outline-danger delete-banner-button"><i class="fas fa-trash-alt"></i> Delete</a></td>
+                    </tr>
+                    <tr>
+                        <td><img src="banner2.jpg" alt="Banner 2" style="max-width: 100px;"></td>
+                        <td>Description 2</td>
+                        <td>No</td>
+                        <td><a href="/admin/delete-banner" class="btn btn-outline-danger delete-banner-button"><i class="fas fa-trash-alt"></i> Delete</a></td>
+                    </tr>
+                    <!-- Add more rows dynamically for each banner -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

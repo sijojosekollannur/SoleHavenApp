@@ -1,0 +1,223 @@
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f8f9fa;
+        color: #333;
+    }
+
+    .container {
+        max-width: 800px;
+        margin: 50px auto;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1);
+        margin-top: 130px;
+    }
+
+    .header {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+    }
+
+    .form-group input {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 16px;
+    }
+
+    .form-group button {
+        width: 100%;
+        padding: 10px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .form-group button:hover {
+        background-color: #0056b3;
+    }
+
+    .btn {
+        padding: 5px 10px;
+        margin: 0 5px;
+        border-radius: 4px;
+        text-decoration: none;
+        color: white;
+    }
+
+    .btn-warning {
+        background-color: #f0ad4e;
+    }
+
+    .btn-danger {
+        background-color: #d9534f;
+    }
+
+    .btn-success {
+        background-color: #5cb85c;
+    }
+
+    .multiple-addresses {
+        margin-top: 20px;
+    }
+</style>
+
+<div class="container">
+    <div class="header">
+        <h1>Welcome, <%= user.name %></h1>
+        <h3>Please Add Your Address</h3>
+        <h2>Cart items: <%= cartItemCount %></h2>
+    </div>
+
+    <form id="addressForm" action="/users/add-address/<%= user._id %>" method="POST">
+        <div class="form-group">
+            <label for="fullName">Full Name</label>
+            <input type="text" id="fullName" name="fullName" >
+            <div id="fullNameError" class="invalid-feedback">Full Name is required.</div>
+        </div>
+        <div class="form-group">
+            <label for="addressLine1">Address Line 1</label>
+            <input type="text" id="addressLine1" name="addressLine1" >
+            <div id="addressLine1Error" class="invalid-feedback">Address Line 1 is required.</div>
+        </div>
+        <div class="form-group">
+            <label for="addressLine2">Address Line 2</label>
+            <input type="text" id="addressLine2" name="addressLine2">
+        </div>
+        <div class="form-group">
+            <label for="city">City</label>
+            <input type="text" id="city" name="city" >
+            <div id="cityError" class="invalid-feedback">City is required.</div>
+        </div>
+        <div class="form-group">
+            <label for="state">State</label>
+            <input type="text" id="state" name="state" >
+            <div id="stateError" class="invalid-feedback">State is required.</div>
+        </div>
+        <div class="form-group">
+            <label for="zipCode">Zip Code</label>
+            <input type="text" id="zipCode" name="zipCode" >
+            <div id="zipCodeError" class="invalid-feedback">Zip Code is required.</div>
+        </div>
+        <div class="form-group">
+            <label for="country">Country</label>
+            <input type="text" id="country" name="country" >
+            <div id="countryError" class="invalid-feedback">Country is required.</div>
+        </div>
+        <div class="form-group">
+            <label for="mobileNumber">Mobile Number</label>
+            <input type="number" id="mobileNumber" name="mobileNumber" >
+            <div id="mobileNumberError" class="invalid-feedback">Mobile Number is required.</div>
+        </div>
+        <div class="form-group">
+            <button type="submit">Add Address</button>
+        </div>
+    </form>
+</div>
+
+<script>
+  document.getElementById('addressForm').addEventListener('submit', function(event) {
+    const fullName = document.getElementById('fullName').value.trim();
+    const addressLine1 = document.getElementById('addressLine1').value.trim();
+    const city = document.getElementById('city').value.trim();
+    const state = document.getElementById('state').value.trim();
+    const zipCode = document.getElementById('zipCode').value.trim();
+    const country = document.getElementById('country').value.trim();
+    const mobileNumber = document.getElementById('mobileNumber').value.trim();
+
+    let isValid = true;
+
+    // Validate Full Name
+    if (fullName === '') {
+      isValid = false;
+      document.getElementById('fullName').classList.add('is-invalid');
+      document.getElementById('fullNameError').textContent = 'Full Name is required.';
+    } else {
+      document.getElementById('fullName').classList.remove('is-invalid');
+      document.getElementById('fullNameError').textContent = '';
+    }
+
+    // Validate Address Line 1
+    if (addressLine1 === '') {
+      isValid = false;
+      document.getElementById('addressLine1').classList.add('is-invalid');
+      document.getElementById('addressLine1Error').textContent = 'Address Line 1 is required.';
+    } else {
+      document.getElementById('addressLine1').classList.remove('is-invalid');
+      document.getElementById('addressLine1Error').textContent = '';
+    }
+
+    // Validate City
+    if (city === '') {
+      isValid = false;
+      document.getElementById('city').classList.add('is-invalid');
+      document.getElementById('cityError').textContent = 'City is required.';
+    } else {
+      document.getElementById('city').classList.remove('is-invalid');
+      document.getElementById('cityError').textContent = '';
+    }
+
+    // Validate State
+    if (state === '') {
+      isValid = false;
+      document.getElementById('state').classList.add('is-invalid');
+      document.getElementById('stateError').textContent = 'State is required.';
+    } else {
+      document.getElementById('state').classList.remove('is-invalid');
+      document.getElementById('stateError').textContent = '';
+    }
+
+    // Validate Zip Code
+    if (zipCode === '') {
+      isValid = false;
+      document.getElementById('zipCode').classList.add('is-invalid');
+      document.getElementById('zipCodeError').textContent = 'Zip Code is required.';
+    } else {
+      document.getElementById('zipCode').classList.remove('is-invalid');
+      document.getElementById('zipCodeError').textContent = '';
+    }
+
+    // Validate Country
+    if (country === '') {
+      isValid = false;
+      document.getElementById('country').classList.add('is-invalid');
+      document.getElementById('countryError').textContent = 'Country is required.';
+    } else {
+      document.getElementById('country').classList.remove('is-invalid');
+      document.getElementById('countryError').textContent = '';
+    }
+
+    // Validate Mobile Number
+    if (mobileNumber === '') {
+      isValid = false;
+      document.getElementById('mobileNumber').classList.add('is-invalid');
+      document.getElementById('mobileNumberError').textContent = 'Mobile Number is required.';
+    } else {
+      document.getElementById('mobileNumber').classList.remove('is-invalid');
+      document.getElementById('mobileNumberError').textContent = '';
+    }
+
+    if (!isValid) {
+      event.preventDefault(); // Prevent form submission if validation fails
+    }
+  });
+</script>

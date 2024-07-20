@@ -1,0 +1,126 @@
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-6 col-sm-12 col-12 mx-auto">
+            <div class="cardV forgot-password-card shadow-lg">
+                <div class="card-header bg-primary text-white">
+                    <h1 class="text-center">Verification</h1>
+                </div>
+                <div class="card-body">
+                    <form id="sendOtpForm" action="/users/send-otp" method="post">
+                        <div class="form-group">
+                            <label for="email">Email:</label>
+                            <input type="email" id="email" name="email" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <button type="button" class="btn btn-primary btn-block" id="sendOTPButton">Send OTP</button>
+                        </div>
+                    </form>
+                    <form id="verificationForm" action="/users/verify" method="post">   
+                        <div class="form-group">
+                            <label for="email"> Re-Enter Email:</label>
+                            <input type="email" id="email" name="email" class="form-control" required>
+                        </div>  
+                        <div class="form-group">
+                            <label for="otp">Enter OTP:</label>
+                            <input type="text" id="otp" name="otp" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary btn-block" id="verifyButton">Verify OTP</button>
+                        </div>
+                    </form>
+                    <div id="timer" class="text-center mt-3"></div>
+                    <div id="resendOtpContainer" style="display: none;">
+                        <a href="#" id="resendOtpLink">Resend OTP</a>
+                    </div>                    
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+<script>
+jQuery.noConflict();
+
+jQuery(document).ready(function($) {
+    let timer;
+    let count = 60; // 60 seconds for OTP timer
+
+    function startTimer() {
+        $('#timer').text(`OTP expires in ${count} seconds`);
+        $('#resendOtpContainer').hide(); // Hide the Resend OTP link initially
+        timer = setInterval(function() {
+            count--;
+            $('#timer').text(`OTP expires in ${count} seconds`);
+            if (count <= 0) {
+                clearInterval(timer);
+                $('#timer').text('OTP expired. Please request a new OTP.');
+                $('#resendOtpContainer').show(); // Show the Resend OTP link when OTP expires
+            }
+        }, 1000);
+    }
+
+    $('#sendOTPButton').click(function() {
+        const email = $('#email').val();
+        if (email) {
+            $.post('/users/send-otp', { email: email })
+            .done(function(data) {
+                // Handle response if needed
+                $('#sendOtpForm').hide();
+                $('#verificationForm').show();
+                count = 60; // Reset timer
+                startTimer();
+            })
+            .fail(function() {
+                alert('Failed to send OTP. Please try again.');
+            });
+        } else {
+            alert('Please enter a valid email.');
+        }
+    });
+
+    $('#verificationForm').submit(function(e) {
+        e.preventDefault();
+        const otp = $('#otp').val().trim(); // Trim whitespace from OTP
+        const email = $('#email').val().trim(); // Trim whitespace from email
+
+        if (otp) {
+            $.post('/users/verify', { email: email, otp: otp })
+            .done(function(data) {
+                alert('OTP verified successfully.');
+                clearInterval(timer); // Stop the timer on successful verification
+                window.location.href = '/users/login'; // Redirect to the login page
+            })
+            .fail(function(jqXHR) {
+                console.error('Verification failed:', jqXHR.responseText);
+                alert('Failed to verify OTP. Please try again.');
+            });
+        } else {
+            alert('Please enter the OTP.');
+        }
+    });
+
+    $('#resendOtpLink').click(function(e) {
+        e.preventDefault();
+        const email = $('#email').val();
+        if (email) {
+            $.post('/users/resend-otp', { email: email })
+            .done(function(data) {
+                // Handle response if needed
+                $('#resendOtpContainer').hide();
+                count = 60; // Reset timer
+                startTimer();
+                alert('A new OTP has been sent to your email.');
+            })
+            .fail(function() {
+                alert('Failed to resend OTP. Please try again.');
+            });
+        } else {
+            alert('Please enter a valid email.');
+        }
+    });
+});
+
+</script>

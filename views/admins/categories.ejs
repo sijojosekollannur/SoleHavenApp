@@ -1,0 +1,76 @@
+<style>
+    .main-content{
+        padding-right: 60px;
+        margin-top: 10px;
+    }
+</style>
+<div class="main-content">
+    <h1>Categories</h1>
+    <div class="row justify-content-end mb-3">
+        <div class="col-md-auto">
+            <a href="/admin/add-category" class="btn btn-primary">Add Category</a>
+        </div>
+    </div>
+
+    <!-- Category Table -->
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <h2>Category List</h2>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Category Name</th>
+                        <th>Active</th>
+                        <th>Edit</th>
+                        <th>Delete</th>
+                    </tr>
+                </thead>
+                <tbody id="categoryListTable">
+                    <% categories.forEach(category => { %>
+                    <% if (!category.isDeleted) { %> <!-- Ensure only non-deleted categories are shown -->
+                    <tr>
+                        <td><%= category.categoryName %></td>
+                        <td><%= category.isActive ? 'Yes' : 'No' %></td>
+                        <td>
+                            <a href="/admin/edit-category/<%= category._id %>" class="btn btn-outline-warning btn-sm"><i class="fas fa-edit"></i> Edit</a>
+                        </td>
+                        <td>
+                            <a href="/admin/delete-category/<%= category._id %>" class="btn btn-outline-danger btn-sm delete-category"><i class="fas fa-trash-alt"></i> Soft Delete</a>
+                        </td>
+                    </tr>
+                    <% } %>
+                    <% }); %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Deleted Category Table (Optional) -->
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <h2>Deleted Category List</h2>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Category Name</th>
+                        <th>Active</th>
+                        <th>Restore</th>
+                    </tr>
+                </thead>
+                <tbody id="deletedCategoryListTable">
+                    <% categories.forEach(category => { %>
+                    <% if (category.isDeleted) { %> <!-- Show only deleted categories -->
+                    <tr>
+                        <td><%= category.categoryName %></td>
+                        <td><%= category.isActive ? 'Yes' : 'No' %></td>
+                        <td>
+                            <a href="/admin/restore-category/<%= category._id %>" class="btn btn-outline-success btn-sm restore-category"><i class="fas fa-undo"></i> Restore</a>
+                        </td>
+                    </tr>
+                    <% } %>
+                    <% }); %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

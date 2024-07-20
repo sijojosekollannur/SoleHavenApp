@@ -1,0 +1,162 @@
+<style>
+    body{
+        padding-top: 90px;
+    }
+    #container-profile {
+        background-color: #ffffff;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        margin-bottom: 60px;
+    }
+    .form-group label {
+        font-weight: bold;
+    }
+    .btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+    }
+    .btn-primary:hover {
+        background-color: #0056b3;
+        border-color: #004085;
+    }
+</style>
+
+<div id="container-profile" class="container mt-5">
+    <h2 class="mb-4 text-center">Add Your Profile</h2>
+    <form id="profileForm" action="/users/edit-profile/<%= user._id %>" method="POST">
+        <div class="form-group">
+            <label for="username">Username:</label>
+            <input type="text" class="form-control" id="username" name="username" value="<%= user.name %>">
+            <div id="usernameError" class="invalid-feedback">Username is required.</div>
+        </div>
+        <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" class="form-control" id="email" name="email" value="<%= user.email %>">
+            <div id="emailError" class="invalid-feedback">Valid email is required.</div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <label for="firstName">First Name:</label>
+                <input type="text" class="form-control" id="firstName" name="firstName" value="<%= profile ? profile.firstName : '' %>">
+                <div id="firstNameError" class="invalid-feedback">First Name is required.</div>
+            </div>
+            <div class="form-group col-md-6">
+                <label for="lastName">Last Name:</label>
+                <input type="text" class="form-control" id="lastName" name="lastName" value="<%= profile ? profile.lastName : '' %>">
+                <div id="lastNameError" class="invalid-feedback">Last Name is required.</div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="dateOfBirth">Date of Birth:</label>
+            <input type="date" class="form-control" id="dateOfBirth" name="dateOfBirth" value="<%= profile && profile.dateOfBirth ? profile.dateOfBirth.toISOString().split('T')[0] : '' %>">
+            <div id="dateOfBirthError" class="invalid-feedback">Date of Birth is required.</div>
+        </div>
+        <div class="form-group">
+            <label for="gender">Gender:</label>
+            <select class="form-control" id="gender" name="gender">
+                <option value="Male" <%= profile && profile.gender === 'Male' ? 'selected' : '' %>>Male</option>
+                <option value="Female" <%= profile && profile.gender === 'Female' ? 'selected' : '' %>>Female</option>
+                <option value="Other" <%= profile && profile.gender === 'Other' ? 'selected' : '' %>>Other</option>
+            </select>
+            <div id="genderError" class="invalid-feedback">Gender is required.</div>
+        </div>
+        <div class="form-group">
+            <label for="phoneNumber">Phone Number:</label>
+            <input type="text" class="form-control" id="phoneNumber" name="phoneNumber" value="<%= profile ? profile.phoneNumber : '' %>">
+            <div id="phoneNumberError" class="invalid-feedback">Phone Number is required.</div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block">Save Profile</button>
+    </form>
+</div>
+
+<script>
+    document.getElementById('profileForm').addEventListener('submit', function(event) {
+        const username = document.getElementById('username').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const firstName = document.getElementById('firstName').value.trim();
+        const lastName = document.getElementById('lastName').value.trim();
+        const dateOfBirth = document.getElementById('dateOfBirth').value.trim();
+        const gender = document.getElementById('gender').value.trim();
+        const phoneNumber = document.getElementById('phoneNumber').value.trim();
+
+        let isValid = true;
+
+        // Validate Username
+        if (username === '') {
+            isValid = false;
+            document.getElementById('username').classList.add('is-invalid');
+            document.getElementById('usernameError').textContent = 'Username is required.';
+        } else {
+            document.getElementById('username').classList.remove('is-invalid');
+            document.getElementById('usernameError').textContent = '';
+        }
+
+        // Validate Email
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (email === '' || !emailPattern.test(email)) {
+            isValid = false;
+            document.getElementById('email').classList.add('is-invalid');
+            document.getElementById('emailError').textContent = 'Valid email is required.';
+        } else {
+            document.getElementById('email').classList.remove('is-invalid');
+            document.getElementById('emailError').textContent = '';
+        }
+
+        // Validate First Name
+        if (firstName === '') {
+            isValid = false;
+            document.getElementById('firstName').classList.add('is-invalid');
+            document.getElementById('firstNameError').textContent = 'First Name is required.';
+        } else {
+            document.getElementById('firstName').classList.remove('is-invalid');
+            document.getElementById('firstNameError').textContent = '';
+        }
+
+        // Validate Last Name
+        if (lastName === '') {
+            isValid = false;
+            document.getElementById('lastName').classList.add('is-invalid');
+            document.getElementById('lastNameError').textContent = 'Last Name is required.';
+        } else {
+            document.getElementById('lastName').classList.remove('is-invalid');
+            document.getElementById('lastNameError').textContent = '';
+        }
+
+        // Validate Date of Birth
+        if (dateOfBirth === '') {
+            isValid = false;
+            document.getElementById('dateOfBirth').classList.add('is-invalid');
+            document.getElementById('dateOfBirthError').textContent = 'Date of Birth is required.';
+        } else {
+            document.getElementById('dateOfBirth').classList.remove('is-invalid');
+            document.getElementById('dateOfBirthError').textContent = '';
+        }
+
+        // Validate Gender
+        if (gender === '') {
+            isValid = false;
+            document.getElementById('gender').classList.add('is-invalid');
+            document.getElementById('genderError').textContent = 'Gender is required.';
+        } else {
+            document.getElementById('gender').classList.remove('is-invalid');
+            document.getElementById('genderError').textContent = '';
+        }
+
+        // Validate Phone Number
+        if (phoneNumber === '') {
+            isValid = false;
+            document.getElementById('phoneNumber').classList.add('is-invalid');
+            document.getElementById('phoneNumberError').textContent = 'Phone Number is required.';
+        } else {
+            document.getElementById('phoneNumber').classList.remove('is-invalid');
+            document.getElementById('phoneNumberError').textContent = '';
+        }
+
+        if (!isValid) {
+            event.preventDefault(); // Prevent form submission if validation fails
+        }
+    });
+</script>

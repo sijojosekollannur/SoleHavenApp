@@ -1,0 +1,100 @@
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-6 mx-auto">
+            <div class="cardF forgot-password-card shadow-lg">
+                <div class="card-header bg-primary text-white">
+                    <h1 class="text-center">Forgot Password</h1>
+                </div>
+                <div class="card-body">
+                    <form id="forgotPasswordForm" action="/users/forgot" method="POST">
+                        <!-- Email input field -->
+                        <div class="form-group">
+                            <label for="username">User Name:</label>
+                            <input type="text" id="username" name="username" class="form-control">
+                            <div id="usernameError" class="invalid-feedback">Username is required.</div>
+                        </div>
+
+                        <!-- Hidden input field to pass username -->
+                        <input type="hidden" name="username" value="<%= username %>">
+
+                        <div class="form-group">
+                            <label for="new_password">New Password:</label>
+                            <input type="password" id="new_password" name="new_password" class="form-control">
+                            <div id="newPasswordError" class="invalid-feedback">New Password is required.</div>
+                        </div>
+                        <div class="form-group">
+                            <label for="confirm_password">Confirm Password:</label>
+                            <input type="password" id="confirm_password" name="confirm_password" class="form-control">
+                            <div id="confirmPasswordError" class="invalid-feedback">Passwords must match.</div>
+                        </div>
+                        <div class="form-group text-center">
+                            <button type="submit" class="btn btn-primary btn-block">Confirm</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('forgotPasswordForm').addEventListener('submit', async function(event) {
+        event.preventDefault(); // Prevent the form from submitting immediately
+
+        let isValid = true;
+        const username = document.getElementById('username').value;
+        const newPassword = document.getElementById('new_password').value;
+        const confirmPassword = document.getElementById('confirm_password').value;
+
+        // Validate username
+        if (username === '') {
+            isValid = false;
+            document.getElementById('username').classList.add('is-invalid');
+            document.getElementById('usernameError').textContent = 'Username is required.';
+        } else {
+            // Check if username exists
+            const response = await fetch('/users/check-username', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username })
+            });
+
+            const result = await response.json();
+            if (!result.exists) {
+                isValid = false;
+                document.getElementById('username').classList.add('is-invalid');
+                document.getElementById('usernameError').textContent = 'Username does not exist.';
+            } else {
+                document.getElementById('username').classList.remove('is-invalid');
+                document.getElementById('usernameError').textContent = '';
+            }
+        }
+
+        // Validate new password
+        if (newPassword === '') {
+            isValid = false;
+            document.getElementById('new_password').classList.add('is-invalid');
+            document.getElementById('newPasswordError').textContent = 'New Password is required.';
+        } else {
+            document.getElementById('new_password').classList.remove('is-invalid');
+            document.getElementById('newPasswordError').textContent = '';
+        }
+
+        // Validate confirm password
+        if (confirmPassword === '' || newPassword !== confirmPassword) {
+            isValid = false;
+            document.getElementById('confirm_password').classList.add('is-invalid');
+            document.getElementById('confirmPasswordError').textContent = 'Passwords must match.';
+        } else {
+            document.getElementById('confirm_password').classList.remove('is-invalid');
+            document.getElementById('confirmPasswordError').textContent = '';
+        }
+
+        // Submit the form if validation passes
+        if (isValid) {
+            event.target.submit();
+        }
+    });
+</script>

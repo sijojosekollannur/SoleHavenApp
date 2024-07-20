@@ -1,0 +1,165 @@
+<style>
+    .wallet-info {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #a5c8c8;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        margin-top: 150px;
+        margin-bottom: 70px;
+    }
+
+    .wallet-info h2 {
+        margin-bottom: 20px;
+        color:rgb(29, 6, 114)
+    }
+
+    .wallet-info p {
+        font-size: 1.2em;
+        margin: 10px 0;
+        color: #333;
+    }
+
+    .wallet-amount {
+        font-size: 1.5em;
+        font-weight: bold;
+        color: black;
+    }
+
+    .wallet-actions {
+        margin-top: 20px;
+    }
+
+    .wallet-actions input[type="number"] {
+        padding: 10px;
+        margin-right: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        width: 200px;
+    }
+
+    .wallet-actions button {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        background-color: #4CAF50;
+        color: white;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .wallet-actions button:hover {
+        background-color: #45a049;
+    }
+
+    .transaction-history {
+        margin-top: 30px;
+    }
+
+    .transaction-history h3 {
+        margin-bottom: 20px;
+    }
+
+    .transaction-history ul {
+        list-style-type: none;
+        padding: 0;
+    }
+
+    .transaction-history li {
+        padding: 10px;
+        border-bottom: 1px solid #ddd;
+    }
+    .btn {
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: #007bff; /* Blue color */
+        color: #fff; /* White text */
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+        border-radius: 5px;
+        margin-top: 10px;
+    }
+
+    .btn:hover {
+        background-color: #0056b3; /* Darker blue color on hover */
+        color: #fff;
+    }
+</style>
+
+<div class="wallet-info">
+    <h2>Wallet</h2>
+    <p>Current Balance: <span class="wallet-amount"> ₹ <%= user.wallet.toFixed(2) %></span></p>
+
+    <div class="wallet-actions">
+        <h3>Add or Withdraw Funds</h3>
+        <input type="number" id="amount" placeholder="Enter amount">
+        <button onclick="addFunds()">Add Funds</button>
+        <button onclick="withdrawFunds()">Withdraw Funds</button>
+    </div>
+
+    <div class="transaction-history">
+        <h3>Transaction History</h3>
+        <ul id="transaction-list">
+            <% transactions.forEach(transaction => { %>
+                <li><%= new Date(transaction.date).toLocaleDateString('en-GB') %> - <%= transaction.type %>: ₹<%= transaction.amount.toFixed(2) %></li>
+            <% }); %>
+        </ul>
+    </div>
+        <!-- Button to return to profile page -->
+    <a href="/users/profile/<%= user._id %>" class="btn">Return to Profile</a> 
+</div>
+
+<script>
+    function addFunds() {
+        const amount = parseFloat(document.getElementById('amount').value);
+        const userId = '<%= user._id %>'; 
+        if (isNaN(amount) || amount <= 0) {
+            alert("Please enter a valid amount");
+            return;
+        }
+
+        fetch(`/users/wallet/${userId}/addfunds`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ amount })
+        }).then(response => {
+            if (response.ok) {
+                location.reload();
+            } else {
+                response.json().then(data => alert(data.message));
+            }
+        }).catch(error => {
+            console.error('Error adding funds:', error);
+        });
+    }
+
+    function withdrawFunds() {
+        const amount = parseFloat(document.getElementById('amount').value);
+        const userId = '<%= user._id %>'; // Assuming you have user object available in your template
+        if (isNaN(amount) || amount <= 0) {
+            alert("Please enter a valid amount");
+            return;
+        }
+
+        fetch(`/users/wallet/${userId}/withdrawfunds`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ amount })
+        }).then(response => {
+            if (response.ok) {
+                location.reload();
+            } else {
+                response.json().then(data => alert(data.message));
+            }
+        }).catch(error => {
+            console.error('Error withdrawing funds:', error);
+        });
+    }
+</script>

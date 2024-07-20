@@ -1,0 +1,96 @@
+
+
+
+<div class="mainbg">
+        <img src="/images/home-image4.jpeg" class="mainbg-image" alt="main-Bg-Image">
+        <div>
+            <h1 class="main-Logo-Heading">
+            <i class="fas fa-shoe-prints"></i> Sole Haven
+            </h1>
+         </div>
+</div>
+
+ 
+
+
+<!--Main Heading-->
+<div class="container-H text-center">
+    <div class="row justify-content-center">
+        <div class="col-md-12 col-12">
+            <div class="Head-logo">
+                <p class="main-Logo-Para">Foot Wears For Men & Women !!</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- All Products List -->
+<div class="container mt-5">
+    <div class="row">
+        <% products.filter(product => !product.isDeleted).forEach(product => { %>
+            <div class="col-md-3 col-sm-6 col-12 py-5">
+                <div class="cardM shadow lg">
+                    <div id="carousel<%= product._id %>" class="carousel slide" data-ride="carousel">
+                        <div class="carousel-inner">
+                            <% product.productImages.forEach((image, index) => { %>
+                                <div class="carousel-item <%= index === 0 ? 'active' : '' %>">
+                                    <img src="<%= image %>" class="d-block w-100 card-img-top" alt="Product Image">
+                                </div>
+                            <% }); %>
+                        </div>
+                        <a class="carousel-control-prev" href="#carousel<%= product._id %>" role="button" data-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="sr-only">Previous</span>
+                        </a>
+                        <a class="carousel-control-next" href="#carousel<%= product._id %>" role="button" data-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="sr-only">Next</span>
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title"><%= product.brandName %></h5>
+                        <p class="card-text font-weight-bold "><%= product.productName %></p>
+                        <p class="card-text"><span><%= product.productCategory.CategoryName %></span></p>
+                        <p class="card-text"> <i class="fas fa-rupee-sign"></i>
+                        <span><%= product.price %></span></p>
+                        <p class="card-text">
+                            <span class="stars">
+                                <% for(let i = 1; i <= 5; i++) { %>
+                                    <% if(i <= Math.floor(product.starRating)) { %>
+                                        <i class="fas fa-star"></i>
+                                    <% } else if(i === Math.ceil(product.starRating)) { %>
+                                        <i class="fas fa-star-half-alt"></i>
+                                    <% } else { %>
+                                        <i class="far fa-star"></i>
+                                    <% } %>
+                                <% } %>
+                            </span>
+                            <span>(<%= product.starRating %>)</span>
+                        </p>
+                        <!-- Add to Cart Button -->
+                        <button class="btn btn-primary btn-add-to-cart" data-product-id="<%= product._id %>">Add to Cart</button>
+                        <!-- Wishlist Button with Heart Icon -->
+                        <button class="btn btn-outline-danger btn-add-to-wishlist" data-product-id="<%= product._id %>">
+                            WishList
+                        </button>
+                    </div>
+                </div>
+            </div>
+        <% }); %>
+    </div>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+ 
+$(document).ready(function() {
+        // Handle Add to Cart and Wishlist button click
+        $('.cardM').on('click', function() {
+            var isLogin = false;
+            if (!isLogin) {
+                alert('Please sign up or log in to perform this action.');
+                return false; // Prevent further actions
+            } 
+        });
+    });
+</script>

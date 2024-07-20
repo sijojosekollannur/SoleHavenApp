@@ -1,0 +1,103 @@
+<style>
+    .coupon-container{
+        padding-left: 250px;
+        padding-right: 100px;
+    }
+</style>
+
+
+<div class="coupon-container mt-5">
+    <h1>Coupons</h1>
+    
+    <!-- Add Coupon Button -->
+    <div class="row justify-content-end mb-3">
+        <div class="col-md-auto">
+            <a href="/admin/add-coupons" class="btn btn-primary">Add Coupon</a>
+        </div>
+    </div>
+    
+    <h2>Coupons List</h2>
+    
+    <!-- Coupons Table or No Data Alert -->
+    <% if (coupons.length > 0) { %>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Code</th>
+                    <th>Discount (%)</th>
+                    <th>Valid From</th>
+                    <th>Valid Until</th>
+                    <th>Usage Limit</th>
+                    <th>Used Count</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% coupons.forEach(coupon => { %>
+                    <tr>
+                        <td><%= coupon.code %></td>
+                        <td><%= coupon.discountPercentage %></td>
+                        <td><%= new Date(coupon.validFrom).toLocaleDateString() %></td>
+                        <td><%= new Date(coupon.validUntil).toLocaleDateString() %></td>
+                        <td><%= coupon.usageLimit %></td>
+                        <td><%= coupon.usedCount %></td>
+                        <td>
+                            <form action="/admin/update-coupons/<%= coupon._id %>?_method=PATCH" method="POST">
+                                <select name="status" class="form-control" onchange="this.form.submit()">
+                                    <option value="active" <%= coupon.status === 'active' ? 'selected' : '' %>>Active</option>
+                                    <option value="expired" <%= coupon.status === 'expired' ? 'selected' : '' %>>Expired</option>
+                                    <option value="used" <%= coupon.status === 'used' ? 'selected' : '' %>>Used</option>
+                                </select>
+                            </form>
+                        </td>                        
+                        <td class="coupon-actions">
+                            <button class="btn btn-danger" onclick="setupCancelCoupon('<%= coupon._id %>')">Cancel</button>
+                          </td>                      
+                    </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    <% } else { %>
+        <div class="alert alert-info" role="alert">
+            Nothing to show in coupon schema.
+        </div>
+    <% } %>
+</div>
+
+<!-- Pagination Controls -->
+<div class="row mt-4">
+    <div class="col-md-12 col-12">
+      <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center">
+          <% for(let i = 1; i <= totalPages; i++) { %>
+            <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+              <a class="page-link" href="/admin/coupons?page=<%= i %>"><%= i %></a>
+            </li>
+          <% } %>
+        </ul>
+      </nav>
+    </div>
+  </div>
+
+<script>
+    function setupCancelCoupon(couponId) {
+        if (confirm('Are you sure you want to cancel this coupon?')) {
+            fetch(`/admin/coupons/${couponId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }).then(response => {
+                if (response.ok) {
+                    location.reload();
+                } else {
+                    response.json().then(data => alert(data.message));
+                }
+            }).catch(error => {
+                console.error('Error deleting coupon:', error);
+                alert('An error occurred while deleting the coupon.');
+            });
+        }
+    }
+</script>

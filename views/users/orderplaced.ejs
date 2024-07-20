@@ -1,0 +1,200 @@
+<style>
+   body {
+    font-family: Arial, sans-serif;
+    background-color: #f5f5f5;
+    margin: 0;
+    padding: 0;
+}
+
+.order-container {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    width: 80%;
+    max-width: 800px;
+    margin: 50px auto;
+    margin-top: 100px;
+}
+
+h1, h2, h3 {
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.order-details {
+    margin-bottom: 20px;
+}
+
+.products-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+.product {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+}
+
+.product-details {
+    flex: 1;
+}
+
+.product p {
+    margin: 5px 0;
+    font-size: 14px;
+}
+
+.order-summary {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 10px;
+    margin-top: 20px;
+}
+
+.shipping-address {
+    margin-top: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 10px;
+}
+
+.shipping-address p {
+    margin: 5px 0;
+    font-size: 14px;
+}
+
+.order-actions {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.action-btn {
+    background-color: #4CAF50;
+    width:200px;
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin-right: 10px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+.cancel-btn {
+    background-color: #f44336;
+}
+
+.view-order-btn {
+    background-color: #008CBA;
+}
+
+.action-btn:hover {
+    background-color: #45a049;
+}
+
+.cancel-btn:hover {
+    background-color: #f44336;
+}
+
+.view-order-btn:hover {
+    background-color:  #005b7f;
+}
+</style>
+
+<div class="order-container">
+    <h1>Order Placed Successfully</h1>
+    <p>Thank you for your purchase, <%= user.name %>!</p>
+    
+    <div class="order-details">
+        <h2>Order Details:</h2>
+        <p>Order ID: <%= order._id %></p>
+        <input type="hidden" id="orderId" value="<%= order._id %>">
+        <p>Order Date: <%= order.orderDate ? order.orderDate.toDateString() : 'Date not available' %></p>
+        
+        <h3>Products:</h3>
+        
+        <ul class="products-list">
+            <% order.products.forEach(product => { %>
+                <li class="product">
+                    <div class="product-details">
+                        <p><strong>Product Name:</strong> <%= product.productName || 'Name not available' %></p>
+                        <% if (product.brandName) { %>
+                            <p><strong>Brand:</strong> <%= product.brandName %></p>
+                        <% } %>
+                        <% if (product.color) { %>
+                            <p><strong>Color:</strong> <%= product.color %></p>
+                        <% } %>
+                        <% if (product.size) { %>
+                            <p><strong>Size:</strong> <%= product.size %></p>
+                        <% } %>
+                        <p><strong>Quantity:</strong> <%= product.quantity %></p>
+                        <p><strong>Price:</strong> $<%= product.price.toFixed(2) %></p>
+                    </div>
+                </li>
+            <% }) %>
+        </ul>
+        
+        <div class="order-summary">
+            <h3>Order Summary:</h3>
+            <% if (order.subtotal !== undefined) { %>
+                <p>Subtotal: ₹<%= order.subtotal.toFixed(2) %></p>
+            <% } %>
+            <% if (order.tax !== undefined) { %>
+                <p>Tax: ₹<%= order.tax.toFixed(2) %></p>
+            <% } %>
+            <p><strong>Total Amount: ₹<%= order.totalAmount.toFixed(2) %></strong></p>
+        </div>
+        
+        <div class="shipping-address">
+            <h3>Shipping Address:</h3>
+            <% if (order.address) { %>
+                <p><%= order.address.fullName %>, <%= order.address.addressLine1 %>, <%= order.address.addressLine2 || '' %>, <%= order.address.city %>, <%= order.address.state %>, <%= order.address.zipCode %>, <%= order.address.country %>, <%= order.address.mobileNumber %></p>
+            <% } else { %>
+                <p>Shipping address not available.</p>
+            <% } %>
+        </div>
+        
+        <div class="order-actions">
+            <a href="/users/checkout" class="action-btn">Back to Checkout</a>
+            <button class="action-btn cancel-btn" onclick="cancelOrder()">Cancel Order</button>
+            <a href="/users/orders/<%= order._id %>/invoice" class="action-btn view-order-btn">Download Invoice</a>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    function cancelOrder() {
+        const orderId = document.getElementById('orderId').value;
+
+        fetch(`/users/order-delete/${orderId}`, {
+            method: 'DELETE'
+        })
+        .then(response => {
+            if (response.ok) {
+                // Redirect to another page, e.g., cart page or home page
+                window.location.href = '/users/cart';
+            } else {
+                // Handle errors here
+                response.json().then(error => {
+                    console.error('Failed to cancel the order:', error);
+                    alert('Failed to cancel the order. Error: ' + (error.message || 'Unknown error'));
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Failed to cancel the order. Error: ' + error.message);
+        });
+    }
+</script>

@@ -1,0 +1,375 @@
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f2f2f2;
+        margin: 20px;
+    }
+    .container {
+        max-width: 800px;
+        margin: 0 auto;
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    h2 {
+        color: #333;
+        margin-bottom: 10px;
+        border-bottom: 1px solid #ccc;
+        padding-bottom: 5px;
+    }
+    .form-group {
+        margin-bottom: 15px;
+    }
+    label {
+        display: block;
+        margin-bottom: 5px;
+        color: #666;
+    }
+    input[type="number"],
+    input[type="text"],
+    input[type="date"],
+    select,
+    button {
+        width: 100%;
+        padding: 8px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+        font-size: 14px;
+    }
+    button {
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        cursor: pointer;
+    }
+    button:hover {
+        background-color: #45a049;
+    }
+</style>
+
+<div class="container">
+    <h2>Add Product Offer</h2>
+    <form id="productOfferForm">
+      <div class="form-group">
+        <label for="productId">Product:</label>
+        <select id="productId" name="productId" class="form-control" >
+          <% products.forEach(product => { %>
+            <option value="<%= product._id %>"><%= product.brandName %>, <%= product.productName %>, <strong>Category = </strong><%= product.productCategory.categoryName %></option>
+          <% }) %>
+        </select>
+        <div id="productIdError" class="invalid-feedback">Please select a product.</div>
+      </div>
+      <div class="form-group">
+        <label for="productDiscount">Discount (%):</label>
+        <input type="number" id="productDiscount" name="productDiscount" class="form-control" >
+        <div id="productDiscountError" class="invalid-feedback">Discount must be a valid percentage between 0 and 100.</div>
+      </div>
+      <div class="form-group">
+        <label for="productStartDate">Start Date:</label>
+        <input type="date" id="productStartDate" name="productStartDate" class="form-control" >
+        <div id="productStartDateError" class="invalid-feedback">Start Date is required.</div>
+      </div>
+      <div class="form-group">
+        <label for="productEndDate">End Date:</label>
+        <input type="date" id="productEndDate" name="productEndDate" class="form-control" >
+        <div id="productEndDateError" class="invalid-feedback">End Date is required.</div>
+      </div>
+      <button type="submit" class="btn btn-primary">Add Product Offer</button>
+    </form>
+  
+    <h2>Add Category Offer</h2>
+    <form id="categoryOfferForm">
+      <div class="form-group">
+        <label for="categoryId">Category:</label>
+        <select id="categoryId" name="categoryId" class="form-control" >
+          <% categories.forEach(category => { %>
+            <% if (!category.isDeleted) { %>
+              <option value="<%= category._id %>"><%= category.categoryName %></option>
+            <% } %>
+          <% }) %>
+        </select>
+        <div id="categoryIdError" class="invalid-feedback">Please select a category.</div>
+      </div>
+      <div class="form-group">
+        <label for="categoryDiscount">Discount (%):</label>
+        <input type="number" id="categoryDiscount" name="categoryDiscount" class="form-control" >
+        <div id="categoryDiscountError" class="invalid-feedback">Discount must be a valid percentage between 0 and 100.</div>
+      </div>
+      <div class="form-group">
+        <label for="categoryStartDate">Start Date:</label>
+        <input type="date" id="categoryStartDate" name="categoryStartDate" class="form-control">
+        <div id="categoryStartDateError" class="invalid-feedback">Start Date is required.</div>
+      </div>
+      <div class="form-group">
+        <label for="categoryEndDate">End Date:</label>
+        <input type="date" id="categoryEndDate" name="categoryEndDate" class="form-control">
+        <div id="categoryEndDateError" class="invalid-feedback">End Date is required.</div>
+      </div>
+      <button type="submit" class="btn btn-primary">Add Category Offer</button>
+    </form>
+  
+    <h2>Add Referral Offer</h2>
+    <form id="referralOfferForm">
+      <div class="form-group">
+        <label for="referrerId">Referrer:</label>
+        <select id="referrerId" name="referrerId" class="form-control" >
+          <option value="">Select a referrer</option>
+          <% referrers.forEach(referrer => { %>
+            <option value="<%= referrer._id %>"><%= referrer.name %> (Code: <%= referrer.referralCode %>)</option>
+          <% }); %>
+        </select>
+        <div id="referrerIdError" class="invalid-feedback">Please select a referrer.</div>
+      </div>
+      <div class="form-group">
+        <label for="referralDiscount">Discount (%):</label>
+        <input type="number" id="referralDiscount" name="referralDiscount" class="form-control"  min="0" max="100">
+        <div id="referralDiscountError" class="invalid-feedback">Discount must be a valid percentage between 0 and 100.</div>
+      </div>
+      <div class="form-group">
+        <label for="validFor">Valid For (days):</label>
+        <input type="number" id="validFor" name="validFor" class="form-control"  min="1">
+        <div id="validForError" class="invalid-feedback">Valid For must be at least 1 day.</div>
+      </div>
+      <button type="submit" class="btn btn-primary">Add Referral Offer</button>
+    </form>
+</div>
+  
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+<script>
+   $(document).ready(function() {
+    // ADD PRODUCT OFFER
+    $('#productOfferForm').on('submit', function(event) {
+        event.preventDefault();
+        const productId = $('#productId').val();
+        const discount = $('#productDiscount').val();
+        const startDate = $('#productStartDate').val();
+        const endDate = $('#productEndDate').val();
+
+        $.ajax({
+            url: '/admin/add-product-offer',
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ productId, discount, startDate, endDate }),
+            success: function(data) {
+                alert(data);
+            },
+            error: function(xhr, status, error) {
+                console.error('Error adding product offer:', error);
+                
+            }
+        });
+    });
+
+    // ADD CATEGORY OFFER
+    $('#categoryOfferForm').on('submit', function(event) {
+        event.preventDefault();
+        const categoryId = $('#categoryId').val();
+        const discount = $('#categoryDiscount').val();
+        const startDate = $('#categoryStartDate').val();
+        const endDate = $('#categoryEndDate').val();
+
+        $.ajax({
+            url: '/admin/add-category-offer',
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ categoryId, discount, startDate, endDate }),
+            success: function(data) {
+                alert(data);
+            },
+            error: function(xhr, status, error) {
+                console.error('Error adding category offer:', error);
+                
+            }
+        });
+    });
+});
+
+</script>
+
+<script>
+    document.getElementById('referralOfferForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+    
+        const referrerId = document.getElementById('referrerId').value;
+        const referralDiscount = document.getElementById('referralDiscount').value;
+        const validFor = document.getElementById('validFor').value;
+    
+        fetch('/admin/add-referral-offer', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ referrerId, discount: referralDiscount, validFor }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Referral offer added successfully!');
+                // Optionally, reset the form or update the UI
+                document.getElementById('referralOfferForm').reset();
+            } else {
+                //alert('Error adding referral offer: ' + data.error);
+            }
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+            
+        });
+    });
+    </script>
+
+<script>
+    document.getElementById('productOfferForm').addEventListener('submit', function(event) {
+      const productId = document.getElementById('productId').value;
+      const productDiscount = document.getElementById('productDiscount').value;
+      const productStartDate = document.getElementById('productStartDate').value;
+      const productEndDate = document.getElementById('productEndDate').value;
+  
+      let isValid = true;
+  
+      // Validate Product
+      if (productId === '') {
+        isValid = false;
+        document.getElementById('productId').classList.add('is-invalid');
+        document.getElementById('productIdError').textContent = 'Please select a product.';
+      } else {
+        document.getElementById('productId').classList.remove('is-invalid');
+        document.getElementById('productIdError').textContent = '';
+      }
+  
+      // Validate Discount
+      if (productDiscount === '' || productDiscount < 0 || productDiscount > 100) {
+        isValid = false;
+        document.getElementById('productDiscount').classList.add('is-invalid');
+        document.getElementById('productDiscountError').textContent = 'Discount must be a valid percentage between 0 and 100.';
+      } else {
+        document.getElementById('productDiscount').classList.remove('is-invalid');
+        document.getElementById('productDiscountError').textContent = '';
+      }
+  
+      // Validate Start Date
+      if (productStartDate === '') {
+        isValid = false;
+        document.getElementById('productStartDate').classList.add('is-invalid');
+        document.getElementById('productStartDateError').textContent = 'Start Date is required.';
+      } else {
+        document.getElementById('productStartDate').classList.remove('is-invalid');
+        document.getElementById('productStartDateError').textContent = '';
+      }
+  
+      // Validate End Date
+      if (productEndDate === '') {
+        isValid = false;
+        document.getElementById('productEndDate').classList.add('is-invalid');
+        document.getElementById('productEndDateError').textContent = 'End Date is required.';
+      } else {
+        document.getElementById('productEndDate').classList.remove('is-invalid');
+        document.getElementById('productEndDateError').textContent = '';
+      }
+  
+      if (!isValid) {
+        event.preventDefault(); // Prevent form submission if validation fails
+      }
+    });
+  
+    document.getElementById('categoryOfferForm').addEventListener('submit', function(event) {
+      const categoryId = document.getElementById('categoryId').value;
+      const categoryDiscount = document.getElementById('categoryDiscount').value;
+      const categoryStartDate = document.getElementById('categoryStartDate').value;
+      const categoryEndDate = document.getElementById('categoryEndDate').value;
+  
+      let isValid = true;
+  
+      // Validate Category
+      if (categoryId === '') {
+        isValid = false;
+        document.getElementById('categoryId').classList.add('is-invalid');
+        document.getElementById('categoryIdError').textContent = 'Please select a category.';
+      } else {
+        document.getElementById('categoryId').classList.remove('is-invalid');
+        document.getElementById('categoryIdError').textContent = '';
+      }
+  
+      // Validate Discount
+      if (categoryDiscount === '' || categoryDiscount < 0 || categoryDiscount > 100) {
+        isValid = false;
+        document.getElementById('categoryDiscount').classList.add('is-invalid');
+        document.getElementById('categoryDiscountError').textContent = 'Discount must be a valid percentage between 0 and 100.';
+      } else {
+        document.getElementById('categoryDiscount').classList.remove('is-invalid');
+        document.getElementById('categoryDiscountError').textContent = '';
+      }
+  
+      // Validate Start Date
+      if (categoryStartDate === '') {
+        isValid = false;
+        document.getElementById('categoryStartDate').classList.add('is-invalid');
+        document.getElementById('categoryStartDateError').textContent = 'Start Date is required.';
+      } else {
+        document.getElementById('categoryStartDate').classList.remove('is-invalid');
+        document.getElementById('categoryStartDateError').textContent = '';
+      }
+  
+      // Validate End Date
+      if (categoryEndDate === '') {
+        isValid = false;
+        document.getElementById('categoryEndDate').classList.add('is-invalid');
+        document.getElementById('categoryEndDateError').textContent = 'End Date is required.';
+      } else {
+        document.getElementById('categoryEndDate').classList.remove('is-invalid');
+        document.getElementById('categoryEndDateError').textContent = '';
+      }
+  
+      if (!isValid) {
+        event.preventDefault(); // Prevent form submission if validation fails
+      }
+    });
+  
+    document.getElementById('referralOfferForm').addEventListener('submit', function(event) {
+      const referrerId = document.getElementById('referrerId').value;
+      const referralDiscount = document.getElementById('referralDiscount').value;
+      const validFor = document.getElementById('validFor').value;
+  
+      let isValid = true;
+  
+      // Validate Referrer
+      if (referrerId === '') {
+        isValid = false;
+        document.getElementById('referrerId').classList.add('is-invalid');
+        document.getElementById('referrerIdError').textContent = 'Please select a referrer.';
+      } else {
+        document.getElementById('referrerId').classList.remove('is-invalid');
+        document.getElementById('referrerIdError').textContent = '';
+      }
+  
+      // Validate Discount
+      if (referralDiscount === '' || referralDiscount < 0 || referralDiscount > 100) {
+        isValid = false;
+        document.getElementById('referralDiscount').classList.add('is-invalid');
+        document.getElementById('referralDiscountError').textContent = 'Discount must be a valid percentage between 0 and 100.';
+      } else {
+        document.getElementById('referralDiscount').classList.remove('is-invalid');
+        document.getElementById('referralDiscountError').textContent = '';
+      }
+  
+      // Validate Valid For
+      if (validFor === '' || validFor < 1) {
+        isValid = false;
+        document.getElementById('validFor').classList.add('is-invalid');
+        document.getElementById('validForError').textContent = 'Valid For must be at least 1 day.';
+      } else {
+        document.getElementById('validFor').classList.remove('is-invalid');
+        document.getElementById('validForError').textContent = '';
+      }
+  
+      if (!isValid) {
+        event.preventDefault(); // Prevent form submission if validation fails
+      }
+    });
+  </script>
+    
