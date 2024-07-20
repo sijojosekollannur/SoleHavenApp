@@ -6,3 +6,6 @@ node_modules/
 
 # Data File
 Datas.js
+
+# secret files
+config/
