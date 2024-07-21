@@ -21,7 +21,7 @@ module.exports = () => {
   passport.use(new FacebookStrategy({
     clientID: process.env.FACEBOOK_APP_ID,
     clientSecret: process.env.FACEBOOK_APP_SECRET,
-    callbackURL: "http://solehaven.live/users/auth/facebook/callback",
+    callbackURL: "https://solehaven.live/users/auth/facebook/callback",
     profileFields: ['id', 'emails', 'displayName'] // Request these fields
    },
 async (accessToken, refreshToken, profile, done) => {
@@ -43,7 +43,7 @@ async (accessToken, refreshToken, profile, done) => {
   passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: "http://solehaven.live/users/auth/google/callback"
+    callbackURL: "https://solehaven.live/users/auth/google/callback"
   },
   async (token, tokenSecret, profile, done) => {
     try {
