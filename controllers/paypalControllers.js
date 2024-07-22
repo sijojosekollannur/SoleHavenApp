@@ -69,7 +69,7 @@ const payProduct = async (req, res) => {
             },
             "redirect_urls": {
                 "return_url": `http://solehaven.live/paypal/success?checkoutId=${checkoutId}&selectedAddress=${selectedAddress}`,
-                "cancel_url": `${process.env.BASE_URL}/paypal/cancel`
+                "cancel_url": `http://solehaven.live/paypal/cancel`
             },
             "transactions": [{
                 "item_list": {
