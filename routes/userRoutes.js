@@ -5,7 +5,7 @@ const userController = require('../controllers/userControllers');
 const auth = require('../middlewares/auth');
 
 // Route For Main Page
-userRouter.get('/main', userController.mainPage);
+userRouter.get('/', userController.mainPage);
 
 //Route For About Us Page
 userRouter.get('/aboutus',userController.aboutusPage);
